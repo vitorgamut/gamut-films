@@ -1,0 +1,3341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Financeiro — Videomaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&family=Raleway:wght@800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --surface3: #22223a;
+    --border: #2a2a40;
+    --accent: #f5a623;
+    --accent2: #e8534a;
+    --accent3: #4ecdc4;
+    --accent4: #a78bfa;
+    --text: #f0f0f5;
+    --text2: #9898b0;
+    --text3: #5a5a72;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .nav {
+    padding: 20px 0;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 24px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(245,166,35,0.06); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-bottom {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 32px;
+    max-width: 1200px;
+  }
+
+  /* HEADER */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .page-sub {
+    font-size: 14px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  .header-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+  }
+
+  /* CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--surface3); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .card.c1::before { background: var(--accent); }
+  .card.c2::before { background: var(--accent3); }
+  .card.c3::before { background: var(--accent4); }
+  .card.c4::before { background: var(--accent2); }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .card-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .card-sub {
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .badge.up { background: rgba(74,222,128,0.12); color: var(--green); }
+  .badge.down { background: rgba(248,113,113,0.12); color: var(--red); }
+
+  /* SECTIONS GRID */
+  .sections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .section.full { grid-column: 1 / -1; }
+
+  .section-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-accent:hover { background: #e09520; }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); background: var(--surface3); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead th {
+    padding: 12px 22px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 13px 22px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .status-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+  }
+
+  .status-ativo { background: rgba(74,222,128,0.1); color: var(--green); }
+  .status-ativo::before { background: var(--green); }
+  .status-inativo { background: rgba(248,113,113,0.1); color: var(--red); }
+  .status-inativo::before { background: var(--red); }
+  .status-aprovada { background: rgba(74,222,128,0.1); color: var(--green); }
+  .status-aprovada::before { background: var(--green); }
+  .status-pendente { background: rgba(251,191,36,0.1); color: var(--yellow); }
+  .status-pendente::before { background: var(--yellow); }
+  .status-recusada { background: rgba(248,113,113,0.1); color: var(--red); }
+  .status-recusada::before { background: var(--red); }
+  .status-em-andamento { background: rgba(167,139,250,0.1); color: var(--accent4); }
+  .status-em-andamento::before { background: var(--accent4); }
+  .status-concluído { background: rgba(74,222,128,0.1); color: var(--green); }
+  .status-concluído::before { background: var(--green); }
+  .status-cancelado { background: rgba(248,113,113,0.1); color: var(--red); }
+  .status-cancelado::before { background: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 580px;
+    max-width: 95vw;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 22px;
+  }
+
+  .form-grid { display: grid; gap: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: var(--surface2); }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 22px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  /* CLIENTS LIST */
+  .clients-list { padding: 8px 0; }
+
+  /* PAGE VISIBILITY */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* MONTH FILTER */
+  .month-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .month-btn {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .month-btn:hover { color: var(--text); border-color: var(--text3); }
+  .month-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* LTV bar */
+  .ltv-bar-wrap {
+    padding: 20px 22px;
+  }
+
+  .ltv-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .ltv-name { font-size: 13px; width: 140px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ltv-bar-bg { flex: 1; height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+  .ltv-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
+  .ltv-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); width: 90px; text-align: right; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="db-loading" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div style="font-family:'Space Grotesk',sans-serif;color:var(--text2);font-size:14px;">Carregando dados...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Gamut<span>.</span>Films</div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">⬛</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('clientes')">
+      <span class="icon">👤</span> Clientes
+    </div>
+    <div class="nav-item" onclick="showPage('propostas')">
+      <span class="icon">📄</span> Propostas
+    </div>
+    <div class="nav-item" onclick="showPage('faturamento')">
+      <span class="icon">💰</span> Faturamento
+    </div>
+    <div class="nav-item" onclick="showPage('pontuais')">
+      <span class="icon">🎬</span> Proj. Pontuais
+    </div>
+    <div class="nav-item" onclick="showPage('calculadora')">
+      <span class="icon">🧮</span> Calculadora
+    </div>
+    <div class="nav-item" onclick="showPage('leads')">
+      <span class="icon">🎯</span> Leads
+    </div>
+    <div class="nav-item" onclick="showPage('custos')">
+      <span class="icon">📉</span> Custos
+    </div>
+    <div class="nav-item" onclick="showPage('metas')">
+      <span class="icon">🎯</span> Metas
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div style="margin-bottom:10px; color:var(--text3); font-size:11px;">Videomaker Dashboard v1.0</div>
+    <button onclick="openSettings()" style="width:100%;margin-bottom:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:12px;padding:8px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">⚙️ Personalizar</button>
+    <button onclick="exportarDados()" style="width:100%; margin-bottom:6px; background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:8px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">⬇ Exportar Dados</button>
+    <label style="width:100%; display:block;">
+      <div style="width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:8px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; text-align:center; transition:all 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">⬆ Importar Dados</div>
+      <input type="file" accept=".json" onchange="importarDados(event)" style="display:none;">
+    </label>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD PAGE -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Visão geral do seu negócio</div>
+      </div>
+      <div class="header-date" id="current-date"></div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card c1">
+        <div class="card-label">Clientes Ativos</div>
+        <div class="card-value" id="kpi-clientes">0</div>
+        <div class="card-sub">recorrentes</div>
+      </div>
+      <div class="card c2">
+        <div class="card-label">Faturamento Mensal</div>
+        <div class="card-value" id="kpi-faturamento">R$ 0</div>
+        <div class="card-sub" id="kpi-fat-sub">este mês</div>
+      </div>
+      <div class="card c3">
+        <div class="card-label">LTV Anual</div>
+        <div class="card-value" id="kpi-ltv">R$ 0</div>
+        <div class="card-sub">valor total/ano</div>
+      </div>
+      <div class="card c4">
+        <div class="card-label">Propostas</div>
+        <div class="card-value" id="kpi-propostas">0</div>
+        <div class="card-sub" id="kpi-prop-sub">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; margin-top:4px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:1px;">Faturamento Anual</div>
+        <div style="display:flex; gap:6px;" id="year-btns"></div>
+      </div>
+      <button onclick="toggleAnual()" id="btn-toggle-anual" style="background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:5px 14px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s;">
+        <span id="toggle-anual-label">▼ Ver</span>
+      </button>
+    </div>
+    <div id="anual-panel" style="display:none; overflow:hidden; transition: all 0.3s ease; margin-bottom:28px;">
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:16px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-top: 2px solid var(--accent3); border-radius:14px; padding:18px;">
+          <div style="font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:10px;">Recorrente no Ano</div>
+          <div style="font-family:'DM Mono',monospace; font-size:22px; font-weight:500; letter-spacing:-0.5px;" id="kpi-anual-rec">R$ 0</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:6px;" id="kpi-anual-rec-sub">clientes ativos × meses</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-top: 2px solid var(--accent4); border-radius:14px; padding:18px;">
+          <div style="font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:10px;">Pontuais no Ano</div>
+          <div style="font-family:'DM Mono',monospace; font-size:22px; font-weight:500; letter-spacing:-0.5px;" id="kpi-anual-pont">R$ 0</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:6px;" id="kpi-anual-pont-sub">projetos avulsos</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-top: 2px solid var(--text); border-radius:14px; padding:18px;">
+          <div style="font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:10px;">Total no Ano</div>
+          <div style="font-family:'DM Mono',monospace; font-size:22px; font-weight:500; letter-spacing:-0.5px;" id="kpi-anual-total">R$ 0</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:6px;">recorrente + pontuais</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sections-grid">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Clientes Recorrentes</div>
+          <button class="btn btn-accent" onclick="openModal('cliente')">+ Adicionar</button>
+        </div>
+        <div class="table-wrap" style="max-height:220px;overflow-y:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Valor/mês</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-clientes-dash">
+              <tr><td colspan="3" class="empty">Nenhum cliente cadastrado</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Tarefas</div>
+        </div>
+        <div style="padding:12px 16px;display:flex;gap:8px;border-bottom:1px solid var(--border);">
+          <input type="text" id="nova-tarefa" placeholder="Nova tarefa..." 
+            style="flex:1;font-size:13px;padding:8px 12px;"
+            onkeydown="if(event.key==='Enter') adicionarTarefa()">
+          <button class="btn btn-accent" onclick="adicionarTarefa()" style="padding:8px 14px;font-size:12px;">+</button>
+        </div>
+        <div id="lista-tarefas" style="max-height:176px;overflow-y:auto;">
+          <div class="empty">Nenhuma tarefa cadastrada</div>
+        </div>
+      </div>
+
+      <div class="section full">
+        <div class="section-header">
+          <div class="section-title">Projetos Pontuais Recentes</div>
+          <button class="btn btn-accent" onclick="openModal('pontual')">+ Novo Projeto</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Tipo de Serviço</th>
+                <th>Valor</th>
+                <th>Entrega</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-pontuais-dash">
+              <tr><td colspan="5" class="empty">Nenhum projeto pontual cadastrado</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+      <div class="section full" style="margin-top:16px;">
+        <div class="section-header">
+          <div class="section-title">Últimas Propostas</div>
+          <button class="btn btn-accent" onclick="openModal('proposta')">+ Nova Proposta</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Valor</th>
+                <th>Data</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-propostas-dash">
+              <tr><td colspan="5" class="empty">Nenhuma proposta cadastrada</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTES PAGE -->
+  <div id="page-clientes" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Clientes</div>
+        <div class="page-sub">Gerencie seus clientes recorrentes</div>
+      </div>
+      <button class="btn btn-accent" onclick="openModal('cliente')">+ Novo Cliente</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Empresa</th>
+              <th>Contato</th>
+              <th>Valor/mês</th>
+              <th>Início</th>
+              <th>Contrato</th>
+              <th>Diárias</th>
+              <th>Status</th>
+              <th>Observações</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="table-clientes-full">
+            <tr><td colspan="10" class="empty">Nenhum cliente cadastrado</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPOSTAS PAGE -->
+  <div id="page-propostas" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Propostas</div>
+        <div class="page-sub">Acompanhe suas propostas emitidas</div>
+      </div>
+      <button class="btn btn-accent" onclick="openModal('proposta')">+ Nova Proposta</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Serviço</th>
+              <th>Valor</th>
+              <th>Data</th>
+              <th>Obs</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="table-propostas-full">
+            <tr><td colspan="7" class="empty">Nenhuma proposta cadastrada</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PONTUAIS PAGE -->
+  <div id="page-pontuais" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Projetos Pontuais</div>
+        <div class="page-sub">Trabalhos avulsos e projetos únicos</div>
+      </div>
+      <button class="btn btn-accent" onclick="openModal('pontual')">+ Novo Projeto</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Tipo de Serviço</th>
+              <th>Valor</th>
+              <th>Entrega</th>
+              <th>Obs</th>
+              <th>Status</th>
+              <th>Pagamento</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="table-pontuais-full">
+            <tr><td colspan="8" class="empty">Nenhum projeto pontual cadastrado</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULADORA PAGE -->
+  <div id="page-calculadora" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Calculadora de Projetos</div>
+        <div class="page-sub">Calcule o valor ideal para cada trabalho</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+      <!-- FORM -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Novo Orçamento</div>
+          <button class="btn btn-ghost" onclick="limparCalc()">Limpar</button>
+        </div>
+        <div style="padding:20px;display:grid;gap:14px;">
+
+          <div class="form-group">
+            <label>Nome do Projeto</label>
+            <input type="text" id="calc-nome" placeholder="Ex: Wedding João & Ana">
+          </div>
+
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px;">Diárias</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="form-group">
+                <label>Valor por Diária (R$)</label>
+                <input type="number" id="calc-diaria-val" placeholder="0" oninput="calcular()">
+              </div>
+              <div class="form-group">
+                <label>Quantidade de Diárias</label>
+                <select id="calc-diaria-qtd" onchange="calcular()">
+                  <option value="0">—</option>
+                  <option value="1">1 diária</option><option value="2">2 diárias</option><option value="3">3 diárias</option><option value="4">4 diárias</option><option value="5">5 diárias</option><option value="6">6 diárias</option><option value="7">7 diárias</option><option value="8">8 diárias</option><option value="9">9 diárias</option><option value="10">10 diárias</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);">Edição</div>
+              <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                <button id="btn-edicao-interna" onclick="setEdicaoTipo('interna')"
+                  style="font-size:11px;padding:5px 12px;border:none;cursor:pointer;background:var(--accent2);color:#fff;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s;">
+                  Interna
+                </button>
+                <button id="btn-edicao-terceirizada" onclick="setEdicaoTipo('terceirizada')"
+                  style="font-size:11px;padding:5px 12px;border:none;cursor:pointer;background:var(--surface3);color:var(--text2);font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s;">
+                  Terceirizada
+                </button>
+              </div>
+            </div>
+            <div id="edicao-tipo-info" style="font-size:11px;color:var(--accent2);margin-bottom:10px;padding:6px 10px;background:rgba(232,83,74,0.08);border-radius:6px;">
+              ✓ Edição interna — valor fica como receita sua, não é despesa
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="form-group">
+                <label>Valor por Vídeo (R$)</label>
+                <input type="number" id="calc-edicao-val" placeholder="0" oninput="calcular()">
+              </div>
+              <div class="form-group">
+                <label>Quantidade de Vídeos</label>
+                <input type="number" id="calc-edicao-qtd" placeholder="0" min="0" oninput="calcular()">
+              </div>
+            </div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+              <span>Total edição:</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--text)" id="calc-total-edicao">R$ 0</span>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent3);">Despesas</div>
+              <button class="btn btn-ghost" onclick="addDespesa()" style="font-size:11px;padding:4px 10px;">+ Adicionar</button>
+            </div>
+            <div id="despesas-list" style="display:grid;gap:8px;"></div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+              <span>Total despesas:</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--text)" id="calc-total-despesas">R$ 0</span>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent4);">Equipe (Freelas)</div>
+              <button class="btn btn-ghost" onclick="addFreela()" style="font-size:11px;padding:4px 10px;">+ Adicionar</button>
+            </div>
+            <div id="freelas-list" style="display:grid;gap:8px;"></div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+              <span>Total equipe:</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--text)" id="calc-total-freelas">R$ 0</span>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent4);margin-bottom:12px;">Impostos & Lucro</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="form-group">
+                <label>Imposto (%)</label>
+                <input type="number" id="calc-imposto" placeholder="Ex: 6" value="6" min="0" max="100" oninput="calcular()">
+              </div>
+              <div class="form-group">
+                <label>Lucro desejado (%)</label>
+                <input type="number" id="calc-lucro" placeholder="Ex: 20" min="0" max="100" oninput="calcular()">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-accent" onclick="salvarOrcamento()" style="width:100%;padding:12px;font-size:14px;">💾 Salvar Orçamento</button>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div style="display:grid;gap:16px;">
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Resultado</div>
+          </div>
+          <div style="padding:20px;display:grid;gap:10px;" id="calc-resultado">
+            <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">Preencha os campos ao lado para calcular</div>
+          </div>
+        </div>
+
+        <!-- HISTORICO -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Histórico de Orçamentos</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Projeto</th>
+                  <th>Bruto</th>
+                  <th>Lucro</th>
+                  <th>Final</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="table-orcamentos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEADS PAGE -->
+  <div id="page-leads" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Leads</div>
+        <div class="page-sub">Funil de prospecção e negociação</div>
+      </div>
+      <button class="btn btn-accent" onclick="openModal('lead')">+ Novo Lead</button>
+    </div>
+
+    <!-- FUNIL KPIs -->
+    <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+      <div class="card c1">
+        <div class="card-label">Prospectar</div>
+        <div class="card-value" id="kpi-lead-prospectar">0</div>
+        <div class="card-sub" id="kpi-lead-prospectar-val">R$ 0 estimado</div>
+      </div>
+      <div class="card c3">
+        <div class="card-label">Em Negociação</div>
+        <div class="card-value" id="kpi-lead-negociacao">0</div>
+        <div class="card-sub" id="kpi-lead-negociacao-val">R$ 0 estimado</div>
+      </div>
+      <div class="card c2">
+        <div class="card-label">Fechado</div>
+        <div class="card-value" id="kpi-lead-fechado">0</div>
+        <div class="card-sub" id="kpi-lead-fechado-val">R$ 0 conquistado</div>
+      </div>
+    </div>
+
+    <!-- KANBAN -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;">
+
+      <!-- PROSPECTAR -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Prospectar</span>
+        </div>
+        <div id="kanban-prospectar" style="display:grid;gap:10px;min-height:100px;"></div>
+      </div>
+
+      <!-- EM NEGOCIAÇÃO -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent4)"></div>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Em Negociação</span>
+        </div>
+        <div id="kanban-negociacao" style="display:grid;gap:10px;min-height:100px;"></div>
+      </div>
+
+      <!-- FECHADO -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Fechado</span>
+        </div>
+        <div id="kanban-fechado" style="display:grid;gap:10px;min-height:100px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CUSTOS PAGE -->
+  <div id="page-custos" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Custos da Empresa</div>
+        <div class="page-sub">Controle de despesas fixas e resultado mensal</div>
+      </div>
+    </div>
+
+    <!-- RESULTADO MENSAL -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;">
+      <span style="font-size:13px;color:var(--text2);white-space:nowrap;">Imposto mensal sobre faturamento</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="number" id="custo-imposto-pct" placeholder="0" min="0" max="100"
+          oninput="onImpostoChange(this.value)"
+          style="width:80px;font-size:14px;padding:8px 12px;font-family:'DM Mono',monospace;">
+        <span style="font-size:14px;color:var(--text2);">%</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-left:8px;">Ex: Simples Nacional ≈ 6%</div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text2);">Imposto: <span style="font-family:'DM Mono',monospace;color:var(--accent2)" id="custo-imposto-val">R$ 0</span></div>
+    </div>
+    <div class="cards-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+      <div class="card c2">
+        <div class="card-label">Faturamento Mensal</div>
+        <div class="card-value" id="custo-faturamento">R$ 0</div>
+        <div class="card-sub">clientes recorrentes ativos</div>
+      </div>
+      <div class="card c4">
+        <div class="card-label">Total de Custos</div>
+        <div class="card-value" id="custo-total">R$ 0</div>
+        <div class="card-sub">custos + imposto</div>
+      </div>
+      <div class="card c3">
+        <div class="card-label">Líquido Mensal</div>
+        <div class="card-value" id="custo-liquido">R$ 0</div>
+        <div class="card-sub" id="custo-liquido-sub">faturamento − custos − imposto</div>
+      </div>
+      <div class="card c1">
+        <div class="card-label">Margem de Lucro</div>
+        <div class="card-value" id="custo-margem">0%</div>
+        <div class="card-sub">sobre o faturamento</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;">
+
+      <!-- CUSTOS FIXOS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Custos Fixos</div>
+          <button class="btn btn-accent" onclick="addCusto('fixo')" style="font-size:11px;padding:6px 12px;">+ Adicionar</button>
+        </div>
+        <div id="lista-fixo" style="padding:12px;display:grid;gap:8px;min-height:60px;"></div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+          <span>Subtotal</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--text)" id="subtotal-fixo">R$ 0</span>
+        </div>
+      </div>
+
+      <!-- ASSINATURAS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Assinaturas & Softwares</div>
+          <button class="btn btn-accent" onclick="addCusto('assinatura')" style="font-size:11px;padding:6px 12px;">+ Adicionar</button>
+        </div>
+        <div id="lista-assinatura" style="padding:12px;display:grid;gap:8px;min-height:60px;"></div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+          <span>Subtotal</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--text)" id="subtotal-assinatura">R$ 0</span>
+        </div>
+      </div>
+
+      <!-- VARIÁVEIS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Custos Variáveis</div>
+          <button class="btn btn-accent" onclick="addCusto('variavel')" style="font-size:11px;padding:6px 12px;">+ Adicionar</button>
+        </div>
+        <div id="lista-variavel" style="padding:12px;display:grid;gap:8px;min-height:60px;"></div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">
+          <span>Subtotal</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--text)" id="subtotal-variavel">R$ 0</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- METAS PAGE -->
+  <div id="page-metas" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Metas</div>
+        <div class="page-sub">Acompanhe seus objetivos de crescimento</div>
+      </div>
+      <button class="btn btn-accent" onclick="document.getElementById('m-id').value=''; clearForm(['m-nome','m-valor','m-obs','m-prazo']); document.getElementById('m-tipo').value='faturamento'; updateMetaTipo(); openModal('nova-meta')">+ Nova Meta</button>
+    </div>
+    <div id="lista-metas-page" style="display:grid;gap:16px;"></div>
+  </div>
+
+  <!-- FATURAMENTO PAGE -->
+  <div id="page-faturamento" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Faturamento</div>
+        <div class="page-sub">Receitas mensais e anuais</div>
+      </div>
+    </div>
+    <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="card c1">
+        <div class="card-label">Recorrente Mensal</div>
+        <div class="card-value" id="fat-mensal">R$ 0</div>
+        <div class="card-sub">clientes ativos</div>
+      </div>
+      <div class="card c2">
+        <div class="card-label">Propostas Aprovadas</div>
+        <div class="card-value" id="fat-propostas">R$ 0</div>
+        <div class="card-sub">total aprovado</div>
+      </div>
+      <div class="card c3">
+        <div class="card-label">Projeção Anual</div>
+        <div class="card-value" id="fat-anual">R$ 0</div>
+        <div class="card-sub">recorrente × 12</div>
+      </div>
+      <div class="card c4">
+        <div class="card-label">Pontuais (Total)</div>
+        <div class="card-value" id="fat-pontuais">R$ 0</div>
+        <div class="card-sub">projetos avulsos</div>
+      </div>
+    </div>
+    <div class="section" style="margin-top: 20px;">
+      <div class="section-header">
+        <div class="section-title">Receita por Cliente (Anual)</div>
+      </div>
+      <div class="ltv-bar-wrap" id="ltv-bars-fat">
+        <div class="empty">Adicione clientes para ver a receita</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="modal-overlay" id="modal-edit-cliente">
+  <div class="modal">
+    <div class="modal-title">Editar Cliente</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome *</label>
+          <input type="text" id="ec-nome" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <input type="text" id="ec-empresa" placeholder="Empresa">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contato</label>
+          <input type="text" id="ec-contato" placeholder="WhatsApp ou email">
+        </div>
+        <div class="form-group">
+          <label>Valor Mensal (R$) *</label>
+          <input type="number" id="ec-valor" placeholder="0,00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Início do Contrato</label>
+          <input type="date" id="ec-inicio">
+        </div>
+        <div class="form-group">
+          <label>Contrato de</label>
+          <select id="ec-contrato">
+            <option value="3 meses">3 meses</option>
+            <option value="6 meses">6 meses</option>
+            <option value="1 ano">1 ano</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="ec-status">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Diárias</label>
+          <select id="ec-diarias">
+            <option value="">—</option>
+            <option value="1">1 diária</option><option value="2">2 diárias</option><option value="3">3 diárias</option><option value="4">4 diárias</option><option value="5">5 diárias</option><option value="6">6 diárias</option><option value="7">7 diárias</option><option value="8">8 diárias</option><option value="9">9 diárias</option><option value="10">10 diárias</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Trabalho</label>
+        <textarea id="ec-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <input type="hidden" id="ec-id">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-cliente')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveEditCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-title">Novo Cliente</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome *</label>
+          <input type="text" id="c-nome" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <input type="text" id="c-empresa" placeholder="Empresa">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contato</label>
+          <input type="text" id="c-contato" placeholder="WhatsApp ou email">
+        </div>
+        <div class="form-group">
+          <label>Valor Mensal (R$) *</label>
+          <input type="number" id="c-valor" placeholder="0,00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Início do Contrato</label>
+          <input type="date" id="c-inicio">
+        </div>
+        <div class="form-group">
+          <label>Contrato de</label>
+          <select id="c-contrato">
+            <option value="3 meses">3 meses</option>
+            <option value="6 meses">6 meses</option>
+            <option value="1 ano">1 ano</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="c-status">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Diárias</label>
+          <select id="c-diarias">
+            <option value="">—</option>
+            <option value="1">1 diária</option><option value="2">2 diárias</option><option value="3">3 diárias</option><option value="4">4 diárias</option><option value="5">5 diárias</option><option value="6">6 diárias</option><option value="7">7 diárias</option><option value="8">8 diárias</option><option value="9">9 diárias</option><option value="10">10 diárias</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Trabalho</label>
+        <textarea id="c-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('cliente')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROPOSTA -->
+<div class="modal-overlay" id="modal-proposta">
+  <div class="modal">
+    <div class="modal-title">Nova Proposta</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cliente *</label>
+          <input type="text" id="p-cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Serviço *</label>
+          <input type="text" id="p-servico" placeholder="Ex: Vídeo institucional">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Valor (R$) *</label>
+          <input type="number" id="p-valor" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="p-data">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="p-status">
+            <option value="Pendente">Pendente</option>
+            <option value="Aprovada">Aprovada</option>
+            <option value="Recusada">Recusada</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+          <label>Descrição do Trabalho</label>
+          <textarea id="p-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+        </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('proposta')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveProposta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PROPOSTA -->
+<div class="modal-overlay" id="modal-edit-proposta">
+  <div class="modal">
+    <div class="modal-title">Editar Proposta</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cliente *</label>
+          <input type="text" id="ep-cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Serviço *</label>
+          <input type="text" id="ep-servico" placeholder="Ex: Vídeo institucional">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Valor (R$) *</label>
+          <input type="number" id="ep-valor" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="ep-data">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="ep-status">
+            <option value="Pendente">Pendente</option>
+            <option value="Aprovada">Aprovada</option>
+            <option value="Recusada">Recusada</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Trabalho</label>
+        <textarea id="ep-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <input type="hidden" id="ep-id">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-proposta')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveEditProposta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PONTUAL -->
+<div class="modal-overlay" id="modal-edit-pontual">
+  <div class="modal">
+    <div class="modal-title">Editar Projeto Pontual</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cliente *</label>
+          <input type="text" id="ept-cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Serviço *</label>
+          <select id="ept-tipo">
+            <option value="Wedding">Wedding</option>
+            <option value="Institucional">Institucional</option>
+            <option value="Evento">Evento</option>
+            <option value="Clipe Musical">Clipe Musical</option>
+            <option value="Documentário">Documentário</option>
+            <option value="Publicidade">Publicidade</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Valor (R$) *</label>
+          <input type="number" id="ept-valor" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Data de Entrega</label>
+          <input type="date" id="ept-entrega">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="ept-status">
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pagamento</label>
+          <select id="ept-pagamento">
+            <option value="Não pago">Não pago</option>
+            <option value="Pago">Pago</option>
+            <option value="Parcial">Parcial (sinal)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Trabalho</label>
+        <textarea id="ept-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <input type="hidden" id="ept-id">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-pontual')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveEditPontual()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PONTUAL -->
+<div class="modal-overlay" id="modal-pontual">
+  <div class="modal">
+    <div class="modal-title">Novo Projeto Pontual</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cliente *</label>
+          <input type="text" id="pt-cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Serviço *</label>
+          <select id="pt-tipo">
+            <option value="Wedding">Wedding</option>
+            <option value="Institucional">Institucional</option>
+            <option value="Evento">Evento</option>
+            <option value="Clipe Musical">Clipe Musical</option>
+            <option value="Documentário">Documentário</option>
+            <option value="Publicidade">Publicidade</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Valor (R$) *</label>
+          <input type="number" id="pt-valor" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Data de Entrega</label>
+          <input type="date" id="pt-entrega">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="pt-status">
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Trabalho</label>
+        <textarea id="pt-obs" placeholder="Descreva o trabalho, equipamentos, equipe, detalhes..." style="min-height:100px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('pontual')">Cancelar</button>
+      <button class="btn btn-accent" onclick="savePontual()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LEAD -->
+<div class="modal-overlay" id="modal-lead">
+  <div class="modal">
+    <div class="modal-title">Novo Lead</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Contato *</label>
+          <input type="text" id="l-nome" placeholder="Nome do lead">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <input type="text" id="l-empresa" placeholder="Empresa">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Serviço</label>
+          <select id="l-tipo">
+            <option value="">—</option>
+            <option>Wedding</option>
+            <option>Institucional</option>
+            <option>Evento</option>
+            <option>Clipe Musical</option>
+            <option>Documentário</option>
+            <option>Publicidade</option>
+            <option>Social Media</option>
+            <option>Recorrente</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Valor Estimado (R$)</label>
+          <input type="number" id="l-valor" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data do Primeiro Contato</label>
+          <input type="date" id="l-data">
+        </div>
+        <div class="form-group">
+          <label>Origem</label>
+          <select id="l-origem">
+            <option value="">—</option>
+            <option>Instagram</option>
+            <option>Indicação</option>
+            <option>Site</option>
+            <option>WhatsApp</option>
+            <option>LinkedIn</option>
+            <option>Evento</option>
+            <option>Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Etapa</label>
+        <select id="l-etapa">
+          <option value="Prospectar">Prospectar</option>
+          <option value="Em negociação">Em negociação</option>
+          <option value="Fechado">Fechado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observações / Próximos Passos</label>
+        <textarea id="l-obs" placeholder="Descreva o contexto, próximos passos, detalhes..." style="min-height:90px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('lead')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveLead()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR LEAD -->
+<div class="modal-overlay" id="modal-edit-lead">
+  <div class="modal">
+    <div class="modal-title">Editar Lead</div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Contato *</label>
+          <input type="text" id="el-nome" placeholder="Nome do lead">
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <input type="text" id="el-empresa" placeholder="Empresa">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Serviço</label>
+          <select id="el-tipo">
+            <option value="">—</option>
+            <option>Wedding</option>
+            <option>Institucional</option>
+            <option>Evento</option>
+            <option>Clipe Musical</option>
+            <option>Documentário</option>
+            <option>Publicidade</option>
+            <option>Social Media</option>
+            <option>Recorrente</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Valor Estimado (R$)</label>
+          <input type="number" id="el-valor" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data do Primeiro Contato</label>
+          <input type="date" id="el-data">
+        </div>
+        <div class="form-group">
+          <label>Origem</label>
+          <select id="el-origem">
+            <option value="">—</option>
+            <option>Instagram</option>
+            <option>Indicação</option>
+            <option>Site</option>
+            <option>WhatsApp</option>
+            <option>LinkedIn</option>
+            <option>Evento</option>
+            <option>Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Etapa</label>
+        <select id="el-etapa">
+          <option value="Prospectar">Prospectar</option>
+          <option value="Em negociação">Em negociação</option>
+          <option value="Fechado">Fechado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observações / Próximos Passos</label>
+        <textarea id="el-obs" placeholder="Descreva o contexto, próximos passos, detalhes..." style="min-height:90px;resize:vertical;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <input type="hidden" id="el-id">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-lead')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveEditLead()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHES ORCAMENTO -->
+<div class="modal-overlay" id="modal-orcamento-detalhes">
+  <div class="modal" style="width:520px;">
+    <div class="modal-title" id="orcamento-detalhes-titulo">Detalhes do Orçamento</div>
+    <div id="orcamento-detalhes-body" style="display:grid;gap:8px;"></div>
+    <div class="form-actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" onclick="closeModal('orcamento-detalhes')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // SUPABASE CONFIG
+  const SB_URL = 'https://jsjsljctdkwfwqwymgyg.supabase.co';
+  const SB_KEY = 'sb_publishable_rsQkaVqugMQreNQCX6cC7w_FG4eT00P';
+
+  function sbXHR(method, url, body, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.setRequestHeader('apikey', SB_KEY);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    if (method === 'POST') xhr.setRequestHeader('Prefer', 'resolution=merge-duplicates');
+    xhr.onload = function() {
+      if (callback) callback(xhr.status, xhr.responseText);
+    };
+    xhr.onerror = function() {
+      if (callback) callback(0, null);
+    };
+    xhr.send(body ? JSON.stringify(body) : null);
+  }
+
+  function sbGet(table, callback) {
+    sbXHR('GET', SB_URL + '/rest/v1/' + table, null, function(status, text) {
+      try {
+        var rows = JSON.parse(text);
+        if (Array.isArray(rows)) callback(rows.map(function(r) { return r.data; }));
+        else callback([]);
+      } catch(e) { callback([]); }
+    });
+  }
+
+  function sbSave(table, items) {
+    if (!Array.isArray(items)) items = [items];
+    var rows = items.map(function(i) { return { id: i.id, data: i }; });
+    sbXHR('POST', SB_URL + '/rest/v1/' + table, rows, null);
+  }
+
+  function sbDelete(table, id) {
+    sbXHR('DELETE', SB_URL + '/rest/v1/' + table + '?id=eq.' + id, null, null);
+  }
+
+  function sbSaveCfg(chave, valor) {
+    sbXHR('POST', SB_URL + '/rest/v1/configuracoes', { chave: chave, valor: valor }, null);
+  }
+
+  function sbLoadCfg(chave, callback) {
+    sbXHR('GET', SB_URL + '/rest/v1/configuracoes?chave=eq.' + chave, null, function(status, text) {
+      try {
+        var rows = JSON.parse(text);
+        callback(rows.length ? rows[0].valor : null);
+      } catch(e) { callback(null); }
+    });
+  }
+
+  function onImpostoChange(val) {
+    localStorage.setItem('ff_imposto_pct', val);
+    sbSaveCfg('imposto_pct', val);
+    renderCustos();
+  }
+
+  function initDB() {
+    var loading = document.getElementById('db-loading');
+    if (loading) loading.style.display = 'flex';
+    var loaded = 0;
+    var total = 8;
+    var results = {};
+
+    function checkDone() {
+      loaded++;
+      if (loaded < total) return;
+      if (results.c && results.c.length) clientes = results.c;
+      if (results.p && results.p.length) propostas = results.p;
+      if (results.pt && results.pt.length) pontuais = results.pt;
+      if (results.l && results.l.length) leads = results.l;
+      if (results.cu && results.cu.length) custos = results.cu;
+      if (results.o && results.o.length) orcamentos = results.o;
+      if (results.ta && results.ta.length) tarefas = results.ta;
+      if (results.me && results.me.length) metas = results.me;
+      if (loading) loading.style.display = 'none';
+      // Load nome and cor from supabase
+    sbLoadCfg('nome', function(v) { if(v) { localStorage.setItem('ff_nome',v); aplicarNome(v); } });
+    sbLoadCfg('tema', function(v) { if(v) { localStorage.setItem('ff_tema',v); aplicarTema(v); } });
+    renderDespesas(); renderFreelas(); renderOrcamentos(); renderLeads(); renderCustos(); renderTarefas(); renderMetas(); render();
+    }
+
+    sbGet('clientes', function(d) { results.c = d; checkDone(); });
+    sbGet('propostas', function(d) { results.p = d; checkDone(); });
+    sbGet('pontuais', function(d) { results.pt = d; checkDone(); });
+    sbGet('leads', function(d) { results.l = d; checkDone(); });
+    sbGet('custos', function(d) { results.cu = d; checkDone(); });
+    sbGet('orcamentos', function(d) { results.o = d; checkDone(); });
+    sbGet('tarefas', function(d) { results.ta = d; checkDone(); });
+    sbGet('metas', function(d) { results.me = d; checkDone(); });
+  }
+
+  // STATE
+  let clientes = JSON.parse(localStorage.getItem('ff_clientes') || '[]');
+  let propostas = JSON.parse(localStorage.getItem('ff_propostas') || '[]');
+  let pontuais = JSON.parse(localStorage.getItem('ff_pontuais') || '[]');
+
+  // TOGGLE OBS EXPAND
+  function toggleObs(el) {
+    const isExpanded = el.style.maxHeight === 'none';
+    el.style.maxHeight = isExpanded ? '60px' : 'none';
+    const btn = el.querySelector('span');
+    if (btn) btn.textContent = isExpanded ? ' ver mais' : ' fechar';
+  }
+
+  // EDIT CLIENTE
+  function editCliente(id) {
+    const c = clientes.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('ec-id').value = id;
+    document.getElementById('ec-nome').value = c.nome;
+    document.getElementById('ec-empresa').value = c.empresa || '';
+    document.getElementById('ec-contato').value = c.contato || '';
+    document.getElementById('ec-valor').value = c.valor;
+    document.getElementById('ec-inicio').value = c.inicio || '';
+    document.getElementById('ec-contrato').value = c.contrato || '1 ano';
+    document.getElementById('ec-status').value = c.status;
+    document.getElementById('ec-diarias').value = c.diarias || '';
+    document.getElementById('ec-obs').value = c.obs || '';
+    openModal('edit-cliente');
+  }
+
+  function saveEditCliente() {
+    const id = parseInt(document.getElementById('ec-id').value);
+    const c = clientes.find(x => x.id === id);
+    if (!c) return;
+    const nome = document.getElementById('ec-nome').value.trim();
+    const valor = parseFloat(document.getElementById('ec-valor').value);
+    if (!nome || !valor) return alert('Preencha nome e valor.');
+    c.nome = nome;
+    c.empresa = document.getElementById('ec-empresa').value.trim();
+    c.contato = document.getElementById('ec-contato').value.trim();
+    c.valor = valor;
+    c.inicio = document.getElementById('ec-inicio').value;
+    c.contrato = document.getElementById('ec-contrato').value;
+    c.status = document.getElementById('ec-status').value;
+    c.diarias = document.getElementById('ec-diarias').value;
+    c.obs = document.getElementById('ec-obs').value.trim();
+    localStorage.setItem('ff_clientes', JSON.stringify(clientes)); sbSave('clientes', clientes);
+    closeModal('edit-cliente');
+    render();
+  }
+
+  // EDIT PROPOSTA
+  function editProposta(id) {
+    const p = propostas.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('ep-id').value = id;
+    document.getElementById('ep-cliente').value = p.cliente;
+    document.getElementById('ep-servico').value = p.servico;
+    document.getElementById('ep-valor').value = p.valor;
+    document.getElementById('ep-data').value = p.data || '';
+    document.getElementById('ep-status').value = p.status;
+    document.getElementById('ep-obs').value = p.obs || '';
+    openModal('edit-proposta');
+  }
+
+  function saveEditProposta() {
+    const id = parseInt(document.getElementById('ep-id').value);
+    const p = propostas.find(x => x.id === id);
+    if (!p) return;
+    const cliente = document.getElementById('ep-cliente').value.trim();
+    const valor = parseFloat(document.getElementById('ep-valor').value);
+    if (!cliente || !valor) return alert('Preencha cliente e valor.');
+    p.cliente = cliente;
+    p.servico = document.getElementById('ep-servico').value.trim();
+    p.valor = valor;
+    p.data = document.getElementById('ep-data').value;
+    p.status = document.getElementById('ep-status').value;
+    p.obs = document.getElementById('ep-obs').value.trim();
+    localStorage.setItem('ff_propostas', JSON.stringify(propostas)); sbSave('propostas', propostas);
+    closeModal('edit-proposta');
+    render();
+  }
+
+  // EDIT PONTUAL
+  function editPontual(id) {
+    const p = pontuais.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('ept-id').value = id;
+    document.getElementById('ept-cliente').value = p.cliente;
+    document.getElementById('ept-tipo').value = p.tipo;
+    document.getElementById('ept-valor').value = p.valor;
+    document.getElementById('ept-entrega').value = p.entrega || '';
+    document.getElementById('ept-status').value = p.status;
+    document.getElementById('ept-pagamento').value = p.pagamento || 'Não pago';
+    document.getElementById('ept-obs').value = p.obs || '';
+    openModal('edit-pontual');
+  }
+
+  function saveEditPontual() {
+    const id = parseInt(document.getElementById('ept-id').value);
+    const p = pontuais.find(x => x.id === id);
+    if (!p) return;
+    const cliente = document.getElementById('ept-cliente').value.trim();
+    const valor = parseFloat(document.getElementById('ept-valor').value);
+    if (!cliente || !valor) return alert('Preencha cliente e valor.');
+    p.cliente = cliente;
+    p.tipo = document.getElementById('ept-tipo').value;
+    p.valor = valor;
+    p.entrega = document.getElementById('ept-entrega').value;
+    p.status = document.getElementById('ept-status').value;
+    p.pagamento = document.getElementById('ept-pagamento').value;
+    p.obs = document.getElementById('ept-obs').value.trim();
+    localStorage.setItem('ff_pontuais', JSON.stringify(pontuais)); sbSave('pontuais', pontuais);
+    closeModal('edit-pontual');
+    render();
+  }
+
+  // CUSTOS
+  let custos = JSON.parse(localStorage.getItem('ff_custos') || '[]');
+
+  function addCusto(categoria) {
+    const id = Date.now();
+    custos.push({ id, categoria, nome: '', valor: 0 });
+    localStorage.setItem('ff_custos', JSON.stringify(custos)); sbSave('custos', custos);
+    renderCustos();
+  }
+
+  function updateCusto(id, field, value) {
+    const c = custos.find(x => x.id === id);
+    if (c) {
+      c[field] = field === 'valor' ? parseFloat(value) || 0 : value;
+      localStorage.setItem('ff_custos', JSON.stringify(custos)); sbSave('custos', custos);
+      updateCustosKPIs();
+    }
+  }
+
+  function updateCustosKPIs() {
+    const categorias = ['fixo', 'assinatura', 'variavel'];
+    let totalGeral = 0;
+    categorias.forEach(function(cat) {
+      const grupo = custos.filter(function(c) { return c.categoria === cat; });
+      const subtotal = grupo.reduce(function(s, c) { return s + c.valor; }, 0);
+      totalGeral += subtotal;
+      const subEl = document.getElementById('subtotal-' + cat);
+      if (subEl) subEl.textContent = fmt(subtotal);
+    });
+    const faturamento = clientes.filter(function(c) { return c.status === 'Ativo'; }).reduce(function(s, c) { return s + c.valor; }, 0);
+    const impostoPct = parseFloat(localStorage.getItem('ff_imposto_pct')) || 0;
+    const impostoVal = faturamento * (impostoPct / 100);
+    const totalComImposto = totalGeral + impostoVal;
+    const liquido = faturamento - totalComImposto;
+    const margem = faturamento > 0 ? ((liquido / faturamento) * 100).toFixed(1) : 0;
+    const elFat = document.getElementById('custo-faturamento');
+    const elTot = document.getElementById('custo-total');
+    const elLiq = document.getElementById('custo-liquido');
+    const elMar = document.getElementById('custo-margem');
+    const elSub = document.getElementById('custo-liquido-sub');
+    const elImpV = document.getElementById('custo-imposto-val');
+    if (elFat) elFat.textContent = fmt(faturamento);
+    if (elTot) elTot.textContent = fmt(totalComImposto);
+    if (elImpV) elImpV.textContent = fmt(impostoVal);
+    if (elLiq) { elLiq.textContent = fmt(liquido); elLiq.style.color = liquido >= 0 ? 'var(--green)' : 'var(--red)'; }
+    if (elMar) { elMar.textContent = margem + '%'; elMar.style.color = margem >= 30 ? 'var(--green)' : margem >= 10 ? 'var(--yellow)' : 'var(--red)'; }
+    if (elSub) elSub.textContent = liquido >= 0 ? 'faturamento - custos - imposto' : 'custos maiores que faturamento';
+  }
+
+  function deleteCusto(id) {
+    custos = custos.filter(x => x.id !== id);
+    localStorage.setItem('ff_custos', JSON.stringify(custos));
+    sbDelete('custos', id);
+    renderCustos();
+  }
+
+  function renderCustos() {
+    const categorias = ['fixo', 'assinatura', 'variavel'];
+    const placeholders = {
+      fixo: 'Ex: Aluguel, Luz, Água...',
+      assinatura: 'Ex: Adobe, Notion...',
+      variavel: 'Ex: Combustível, Material...'
+    };
+
+    let totalGeral = 0;
+
+    categorias.forEach(cat => {
+      const grupo = custos.filter(c => c.categoria === cat);
+      const subtotal = grupo.reduce((s, c) => s + c.valor, 0);
+      totalGeral += subtotal;
+
+      const el = document.getElementById(`lista-${cat}`);
+      const subEl = document.getElementById(`subtotal-${cat}`);
+      if (subEl) subEl.textContent = fmt(subtotal);
+      if (!el) return;
+
+      if (grupo.length === 0) {
+        el.innerHTML = `<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px;">Nenhum item</div>`;
+      } else {
+        el.innerHTML = grupo.map(c => `
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;">
+            <input type="text" placeholder="${placeholders[cat]}" value="${c.nome}"
+              oninput="updateCusto(${c.id},'nome',this.value)"
+              style="font-size:12px;padding:7px 10px;">
+            <input type="number" placeholder="R$" value="${c.valor || ''}"
+              oninput="updateCusto(${c.id},'valor',this.value)"
+              style="font-size:12px;padding:7px 10px;width:90px;">
+            <button onclick="deleteCusto(${c.id})"
+              style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px;">×</button>
+          </div>
+        `).join('');
+      }
+    });
+
+    // Update KPIs
+    const faturamento = clientes.filter(c => c.status === 'Ativo').reduce((s, c) => s + c.valor, 0);
+    const impostoPct  = parseFloat(localStorage.getItem('ff_imposto_pct')) || 0;
+    const impostoVal  = faturamento * (impostoPct / 100);
+    const totalComImposto = totalGeral + impostoVal;
+    const liquido     = faturamento - totalComImposto;
+    const margem      = faturamento > 0 ? ((liquido / faturamento) * 100).toFixed(1) : 0;
+
+    const elFat   = document.getElementById('custo-faturamento');
+    const elTot   = document.getElementById('custo-total');
+    const elLiq   = document.getElementById('custo-liquido');
+    const elMar   = document.getElementById('custo-margem');
+    const elSub   = document.getElementById('custo-liquido-sub');
+    const elImpV  = document.getElementById('custo-imposto-val');
+    const elImpI  = document.getElementById('custo-imposto-pct');
+
+    if (elImpI && document.activeElement !== elImpI) elImpI.value = impostoPct || '';
+    if (elImpV) elImpV.textContent = fmt(impostoVal);
+    if (elFat)  elFat.textContent = fmt(faturamento);
+    if (elTot)  elTot.textContent = fmt(totalComImposto);
+    if (elLiq) {
+      elLiq.textContent = fmt(liquido);
+      elLiq.style.color = liquido >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+    if (elMar) {
+      elMar.textContent = margem + '%';
+      elMar.style.color = margem >= 30 ? 'var(--green)' : margem >= 10 ? 'var(--yellow)' : 'var(--red)';
+    }
+    if (elSub) elSub.textContent = liquido >= 0 ? 'faturamento − custos − imposto' : '⚠ custos maiores que faturamento';
+  }
+
+  // LEADS
+  function saveLead() {
+    const nome = document.getElementById('l-nome').value.trim();
+    if (!nome) return alert('Preencha o nome do contato.');
+    leads.push({
+      id: Date.now(),
+      nome,
+      empresa: document.getElementById('l-empresa').value.trim(),
+      tipo: document.getElementById('l-tipo').value,
+      valor: parseFloat(document.getElementById('l-valor').value) || 0,
+      data: document.getElementById('l-data').value,
+      origem: document.getElementById('l-origem').value,
+      etapa: document.getElementById('l-etapa').value,
+      obs: document.getElementById('l-obs').value.trim()
+    });
+    localStorage.setItem('ff_leads', JSON.stringify(leads)); sbSave('leads', leads);
+    closeModal('lead');
+    clearForm(['l-nome','l-empresa','l-valor','l-obs']);
+    renderLeads();
+    renderCustos();
+    renderMetas();
+  }
+
+  function editLead(id) {
+    const l = leads.find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('el-id').value = id;
+    document.getElementById('el-nome').value = l.nome;
+    document.getElementById('el-empresa').value = l.empresa || '';
+    document.getElementById('el-tipo').value = l.tipo || '';
+    document.getElementById('el-valor').value = l.valor || '';
+    document.getElementById('el-data').value = l.data || '';
+    document.getElementById('el-origem').value = l.origem || '';
+    document.getElementById('el-etapa').value = l.etapa;
+    document.getElementById('el-obs').value = l.obs || '';
+    openModal('edit-lead');
+  }
+
+  function saveEditLead() {
+    const id = parseInt(document.getElementById('el-id').value);
+    const l = leads.find(x => x.id === id);
+    if (!l) return;
+    const nome = document.getElementById('el-nome').value.trim();
+    if (!nome) return alert('Preencha o nome do contato.');
+    l.nome = nome;
+    l.empresa = document.getElementById('el-empresa').value.trim();
+    l.tipo = document.getElementById('el-tipo').value;
+    l.valor = parseFloat(document.getElementById('el-valor').value) || 0;
+    l.data = document.getElementById('el-data').value;
+    l.origem = document.getElementById('el-origem').value;
+    l.etapa = document.getElementById('el-etapa').value;
+    l.obs = document.getElementById('el-obs').value.trim();
+    localStorage.setItem('ff_leads', JSON.stringify(leads)); sbSave('leads', leads);
+    closeModal('edit-lead');
+    renderLeads();
+    renderCustos();
+    renderMetas();
+  }
+
+  function deleteLead(id) {
+    if (!confirm('Remover lead?')) return;
+    leads = leads.filter(l => l.id !== id);
+    localStorage.setItem('ff_leads', JSON.stringify(leads));
+    sbDelete('leads', id);
+    renderLeads();
+    renderCustos();
+    renderMetas();
+  }
+
+  function moveLeadEtapa(id, etapa) {
+    const l = leads.find(x => x.id === id);
+    if (l) l.etapa = etapa;
+    localStorage.setItem('ff_leads', JSON.stringify(leads)); sbSave('leads', leads);
+    renderLeads();
+    renderCustos();
+    renderMetas();
+  }
+
+  function renderLeads() {
+    const etapas = ['Prospectar', 'Em negociação', 'Fechado'];
+    const ids = ['kanban-prospectar', 'kanban-negociacao', 'kanban-fechado'];
+    const colors = ['var(--accent)', 'var(--accent4)', 'var(--green)'];
+    const kpiIds = ['kpi-lead-prospectar', 'kpi-lead-negociacao', 'kpi-lead-fechado'];
+    const kpiValIds = ['kpi-lead-prospectar-val', 'kpi-lead-negociacao-val', 'kpi-lead-fechado-val'];
+
+    etapas.forEach((etapa, i) => {
+      const group = leads.filter(l => l.etapa === etapa);
+      const total = group.reduce((s, l) => s + l.valor, 0);
+      const kpiEl = document.getElementById(kpiIds[i]);
+      const kpiValEl = document.getElementById(kpiValIds[i]);
+      if (kpiEl) kpiEl.textContent = group.length;
+      if (kpiValEl) kpiValEl.textContent = fmt(total) + (etapa === 'Fechado' ? ' conquistado' : ' estimado');
+
+      const el = document.getElementById(ids[i]);
+      if (!el) return;
+
+      if (group.length === 0) {
+        el.innerHTML = `<div style="border:1px dashed var(--border);border-radius:10px;padding:20px;text-align:center;color:var(--text3);font-size:12px;">Nenhum lead aqui</div>`;
+        return;
+      }
+
+      el.innerHTML = group.map(l => `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-left:3px solid ${colors[i]};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <div style="font-weight:700;font-size:13px;">${l.nome}</div>
+              ${l.empresa ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.empresa}</div>` : ''}
+            </div>
+            ${l.valor ? `<div style="font-family:'DM Mono',monospace;font-size:13px;color:${colors[i]};font-weight:600;">${fmt(l.valor)}</div>` : ''}
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            ${l.tipo ? `<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--text2);">${l.tipo}</span>` : ''}
+            ${l.origem ? `<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--text2);">📍 ${l.origem}</span>` : ''}
+            ${l.data ? `<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--text2);">${new Date(l.data+'T00:00').toLocaleDateString('pt-BR')}</span>` : ''}
+          </div>
+          ${l.obs ? `<div style="font-size:11px;color:var(--text2);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.obs.replace(/\n/g,' ').substring(0,30) + (l.obs.length > 30 ? '...' : '')}</div>` : ''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${etapas.filter(e => e !== etapa).map(e => `
+              <button onclick="moveLeadEtapa(${l.id},'${e}')" class="btn btn-ghost" style="font-size:10px;padding:4px 8px;">→ ${e}</button>
+            `).join('')}
+            <button onclick="editLead(${l.id})" class="btn btn-ghost" style="font-size:10px;padding:4px 8px;">Editar</button>
+            <button onclick="deleteLead(${l.id})" class="btn btn-ghost" style="font-size:10px;padding:4px 8px;color:var(--red);">Remover</button>
+          </div>
+        </div>
+      `).join('');
+    });
+  }
+
+  // SETTINGS - TEMAS COMPLETOS
+  var temas = {
+    'escuro': {
+      nome: 'Escuro Clássico',
+      '--bg': '#0a0a0f',
+      '--surface': '#12121a',
+      '--surface2': '#1a1a26',
+      '--surface3': '#22223a',
+      '--border': '#2a2a40',
+      '--text': '#f0f0f5',
+      '--text2': '#9898b0',
+      '--text3': '#5a5a72',
+      '--accent': '#f5a623',
+      '--green': '#4ade80',
+      '--red': '#f87171',
+      '--yellow': '#fbbf24'
+    },
+    'azul': {
+      nome: 'Escuro Azulado',
+      '--bg': '#050d1a',
+      '--surface': '#0a1628',
+      '--surface2': '#0f1f38',
+      '--surface3': '#162846',
+      '--border': '#1e3554',
+      '--text': '#e8f0ff',
+      '--text2': '#7a99cc',
+      '--text3': '#3a5580',
+      '--accent': '#38bdf8',
+      '--green': '#34d399',
+      '--red': '#f87171',
+      '--yellow': '#fbbf24'
+    },
+    'claro': {
+      nome: 'Claro Minimalista',
+      '--bg': '#f8f9fc',
+      '--surface': '#ffffff',
+      '--surface2': '#f0f2f8',
+      '--surface3': '#e4e8f4',
+      '--border': '#d8ddf0',
+      '--text': '#1a1a2e',
+      '--text2': '#4a4a6a',
+      '--text3': '#8888aa',
+      '--accent': '#e08020',
+      '--green': '#16a34a',
+      '--red': '#dc2626',
+      '--yellow': '#d97706'
+    },
+    'bege': {
+      nome: 'Claro Quente',
+      '--bg': '#f5f0e8',
+      '--surface': '#fdfaf4',
+      '--surface2': '#ede8da',
+      '--surface3': '#e0d8c8',
+      '--border': '#d4cabc',
+      '--text': '#2c2416',
+      '--text2': '#6b5c44',
+      '--text3': '#9e8e78',
+      '--accent': '#c87832',
+      '--green': '#2d7a3a',
+      '--red': '#c0392b',
+      '--yellow': '#c07820'
+    }
+  };
+
+  function aplicarTema(id) {
+    var tema = temas[id];
+    if (!tema) return;
+    Object.keys(tema).forEach(function(key) {
+      if (key !== 'nome') document.documentElement.style.setProperty(key, tema[key]);
+    });
+    // Update nav active colors
+    document.querySelectorAll('.nav-item.active').forEach(function(el) {
+      el.style.color = 'var(--accent)';
+    });
+    localStorage.setItem('ff_tema', id);
+    // Highlight selected
+    document.querySelectorAll('.tema-btn').forEach(function(el) {
+      el.style.border = '2px solid transparent';
+      el.style.opacity = '0.7';
+    });
+    var btn = document.getElementById('tema-' + id);
+    if (btn) { btn.style.border = '2px solid var(--accent)'; btn.style.opacity = '1'; }
+  }
+
+  function loadSettings() {
+    var nome = localStorage.getItem('ff_nome') || 'Gamut.Films';
+    var temaId = localStorage.getItem('ff_tema') || 'escuro';
+    aplicarNome(nome);
+    aplicarTema(temaId);
+  }
+
+  function aplicarNome(nome) {
+    var el = document.querySelector('.logo');
+    if (el) {
+      var parts = nome.split('.');
+      if (parts.length > 1) {
+        el.innerHTML = parts[0] + '<span>.</span>' + parts.slice(1).join('.');
+      } else {
+        el.innerHTML = nome;
+      }
+    }
+  }
+
+  function salvarSettings() {
+    var nome = document.getElementById('settings-nome').value.trim() || 'Gamut.Films';
+    var temaId = localStorage.getItem('ff_tema') || 'escuro';
+    localStorage.setItem('ff_nome', nome);
+    aplicarNome(nome);
+    sbSaveCfg('nome', nome);
+    sbSaveCfg('tema', temaId);
+    closeModal('settings');
+  }
+
+  function openSettings() {
+    document.getElementById('settings-nome').value = localStorage.getItem('ff_nome') || 'Gamut.Films';
+    var temaAtual = localStorage.getItem('ff_tema') || 'escuro';
+    document.querySelectorAll('.tema-btn').forEach(function(el) {
+      el.style.border = '2px solid transparent';
+      el.style.opacity = '0.7';
+    });
+    var btn = document.getElementById('tema-' + temaAtual);
+    if (btn) { btn.style.border = '2px solid var(--accent)'; btn.style.opacity = '1'; }
+    openModal('settings');
+  }
+
+  // METAS
+  let metas = JSON.parse(localStorage.getItem('ff_metas') || '[]');
+
+  function updateMetaTipo() {
+    var tipo = document.getElementById('m-tipo').value;
+    var label = document.getElementById('m-valor-label');
+    var input = document.getElementById('m-valor');
+    if (tipo === 'faturamento') {
+      label.textContent = 'Valor da Meta (R$)';
+      input.placeholder = '100000';
+    } else {
+      label.textContent = 'Quantidade de Clientes';
+      input.placeholder = '10';
+    }
+  }
+
+  function salvarMeta() {
+    var nome = document.getElementById('m-nome').value.trim();
+    var valor = parseFloat(document.getElementById('m-valor').value);
+    if (!nome || !valor) return alert('Preencha nome e valor da meta.');
+    var idRaw = document.getElementById('m-id').value;
+    var meta = {
+      id: idRaw ? parseInt(idRaw) : Date.now(),
+      nome: nome,
+      tipo: document.getElementById('m-tipo').value,
+      valor: valor,
+      prazo: document.getElementById('m-prazo').value,
+      obs: document.getElementById('m-obs').value.trim()
+    };
+    if (idRaw) {
+      metas = metas.map(function(m) { return m.id === meta.id ? meta : m; });
+    } else {
+      metas.push(meta);
+    }
+    localStorage.setItem('ff_metas', JSON.stringify(metas));
+    sbSave('metas', metas);
+    closeModal('nova-meta');
+    clearForm(['m-nome','m-valor','m-obs','m-prazo']);
+    document.getElementById('m-id').value = '';
+    renderMetas();
+  }
+
+  function editarMeta(id) {
+    var m = metas.find(function(x) { return x.id === id; });
+    if (!m) return;
+    document.getElementById('m-id').value = m.id;
+    document.getElementById('m-nome').value = m.nome;
+    document.getElementById('m-tipo').value = m.tipo;
+    document.getElementById('m-valor').value = m.valor;
+    document.getElementById('m-prazo').value = m.prazo || '';
+    document.getElementById('m-obs').value = m.obs || '';
+    updateMetaTipo();
+    openModal('nova-meta');
+  }
+
+  function deleteMeta(id) {
+    if (!confirm('Remover meta?')) return;
+    metas = metas.filter(function(m) { return m.id !== id; });
+    localStorage.setItem('ff_metas', JSON.stringify(metas));
+    sbDelete('metas', id);
+    renderMetas();
+  }
+
+  function getMetaAtual(tipo) {
+    var ativos = clientes.filter(function(c) { return c.status === 'Ativo'; });
+    if (tipo === 'clientes') return ativos.length;
+    if (tipo === 'faturamento') {
+      var recAnualVal = ativos.reduce(function(s, c) { return s + c.valor * contratoMeses(c.contrato); }, 0);
+      var pontAnualVal = pontuais.reduce(function(s, p) { return s + p.valor; }, 0);
+      return recAnualVal + pontAnualVal;
+    }
+    return 0;
+  }
+
+  function renderMetas() {
+    var el = document.getElementById('lista-metas-page');
+    if (!el) return;
+    if (metas.length === 0) {
+      el.innerHTML = '<div class="section"><div class="empty" style="padding:40px;">Nenhuma meta cadastrada. Clique em "+ Nova Meta" para começar!</div></div>';
+      return;
+    }
+    el.innerHTML = metas.map(function(m) {
+      var atual = getMetaAtual(m.tipo);
+      var pct = Math.min(100, Math.round((atual / m.valor) * 100));
+      var falta = Math.max(0, m.valor - atual);
+      var isMoney = m.tipo === 'faturamento';
+      var formatVal = function(v) { return isMoney ? fmt(v) : v + ' clientes'; };
+      var cor = pct >= 100 ? 'var(--green)' : pct >= 60 ? 'var(--accent)' : pct >= 30 ? 'var(--yellow)' : 'var(--accent2)';
+      var prazoTxt = m.prazo ? new Date(m.prazo + 'T00:00').toLocaleDateString('pt-BR') : '';
+
+      return '<div class="section" style="padding:0;">' +
+        '<div style="padding:20px 24px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
+            '<div>' +
+              '<div style="font-family:Space Grotesk,sans-serif;font-weight:700;font-size:16px;">' + m.nome + '</div>' +
+              '<div style="font-size:12px;color:var(--text2);margin-top:3px;">' +
+                (m.tipo === 'faturamento' ? '💰 Faturamento Anual' : '👥 Clientes Recorrentes') +
+                (prazoTxt ? ' · Prazo: ' + prazoTxt : '') +
+                (m.obs ? ' · ' + m.obs : '') +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;" onclick="editarMeta(' + m.id + ')">Editar</button>' +
+              '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red);" onclick="deleteMeta(' + m.id + ')">Remover</button>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:10px;">' +
+            '<div style="background:var(--surface2);border-radius:20px;height:10px;overflow:hidden;">' +
+              '<div style="height:100%;border-radius:20px;background:' + cor + ';width:' + pct + '%;transition:width 0.6s ease;"></div>' +
+            '</div>' +
+            '<div style="font-family:DM Mono,monospace;font-size:14px;font-weight:600;color:' + cor + ';white-space:nowrap;">' + pct + '%</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">' +
+            '<div style="background:var(--surface2);border-radius:10px;padding:12px;">' +
+              '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Atual</div>' +
+              '<div style="font-family:DM Mono,monospace;font-size:15px;font-weight:600;color:' + cor + ';">' + formatVal(atual) + '</div>' +
+            '</div>' +
+            '<div style="background:var(--surface2);border-radius:10px;padding:12px;">' +
+              '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Meta</div>' +
+              '<div style="font-family:DM Mono,monospace;font-size:15px;font-weight:600;">' + formatVal(m.valor) + '</div>' +
+            '</div>' +
+            '<div style="background:var(--surface2);border-radius:10px;padding:12px;">' +
+              '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Falta</div>' +
+              '<div style="font-family:DM Mono,monospace;font-size:15px;font-weight:600;color:var(--text2);">' + (pct >= 100 ? '✅ Atingida!' : formatVal(falta)) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // TAREFAS
+  let tarefas = JSON.parse(localStorage.getItem('ff_tarefas') || '[]');
+
+  function adicionarTarefa() {
+    var input = document.getElementById('nova-tarefa');
+    var texto = input.value.trim();
+    if (!texto) return;
+    tarefas.push({ id: Date.now(), texto: texto });
+    localStorage.setItem('ff_tarefas', JSON.stringify(tarefas));
+    sbSave('tarefas', tarefas);
+    input.value = '';
+    renderTarefas();
+  }
+
+  function deleteTarefa(id) {
+    tarefas = tarefas.filter(function(t) { return t.id !== id; });
+    localStorage.setItem('ff_tarefas', JSON.stringify(tarefas));
+    sbDelete('tarefas', id);
+    renderTarefas();
+  }
+
+  function renderTarefas() {
+    var el = document.getElementById('lista-tarefas');
+    if (!el) return;
+    if (tarefas.length === 0) {
+      el.innerHTML = '<div class="empty">Nenhuma tarefa cadastrada</div>';
+      return;
+    }
+    el.innerHTML = tarefas.map(function(t) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:13px;color:var(--text)">' + t.texto + '</span>' +
+        '<button onclick="deleteTarefa(' + t.id + ')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0;">×</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  // CALCULADORA
+  let edicaoTipo = 'interna';
+
+  function setEdicaoTipo(tipo) {
+    edicaoTipo = tipo;
+    const btnInt = document.getElementById('btn-edicao-interna');
+    const btnTerc = document.getElementById('btn-edicao-terceirizada');
+    const info = document.getElementById('edicao-tipo-info');
+    if (!btnInt) return;
+    if (tipo === 'interna') {
+      btnInt.style.background = 'var(--accent2)'; btnInt.style.color = '#fff';
+      btnTerc.style.background = 'var(--surface3)'; btnTerc.style.color = 'var(--text2)';
+      info.style.color = 'var(--accent2)';
+      info.style.background = 'rgba(232,83,74,0.08)';
+      info.textContent = '✓ Edição interna — valor fica como receita sua, não é despesa';
+    } else {
+      btnTerc.style.background = 'var(--accent2)'; btnTerc.style.color = '#fff';
+      btnInt.style.background = 'var(--surface3)'; btnInt.style.color = 'var(--text2)';
+      info.style.color = 'var(--yellow)';
+      info.style.background = 'rgba(251,191,36,0.08)';
+      info.textContent = '⚠ Edição terceirizada — valor entra como despesa e desconta do lucro';
+    }
+    calcular();
+  }
+
+  let orcamentos = JSON.parse(localStorage.getItem('ff_orcamentos') || '[]');
+  let leads = JSON.parse(localStorage.getItem('ff_leads') || '[]');
+  let despesas = [];
+
+  let freelas = [];
+
+  function addFreela() {
+    const id = Date.now();
+    freelas.push({ id, nome: '', valor: 0 });
+    renderFreelas();
+  }
+
+  function removeFreela(id) {
+    freelas = freelas.filter(f => f.id !== id);
+    renderFreelas();
+    calcular();
+  }
+
+  function updateFreela(id, field, value) {
+    const f = freelas.find(x => x.id === id);
+    if (f) {
+      f[field] = field === 'valor' ? parseFloat(value) || 0 : value;
+      calcular();
+    }
+  }
+
+  function renderFreelas() {
+    const el = document.getElementById('freelas-list');
+    if (!el) return;
+    if (freelas.length === 0) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px;">Nenhum freela adicionado</div>';
+    } else {
+      el.innerHTML = freelas.map(f => `
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;">
+          <input type="text" placeholder="Ex: Fotógrafo, Assistente..." value="${f.nome}"
+            oninput="updateFreela(${f.id},'nome',this.value)"
+            style="font-size:12px;padding:7px 10px;">
+          <input type="number" placeholder="R$" value="${f.valor || ''}"
+            oninput="updateFreela(${f.id},'valor',this.value)"
+            style="font-size:12px;padding:7px 10px;width:90px;">
+          <button onclick="removeFreela(${f.id})"
+            style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px;">×</button>
+        </div>
+      `).join('');
+    }
+    calcular();
+  }
+
+  function addDespesa() {
+    const id = Date.now();
+    despesas.push({ id, nome: '', valor: 0 });
+    renderDespesas();
+  }
+
+  function removeDespesa(id) {
+    despesas = despesas.filter(d => d.id !== id);
+    renderDespesas();
+    calcular();
+  }
+
+  function renderDespesas() {
+    const el = document.getElementById('despesas-list');
+    if (!el) return;
+    if (despesas.length === 0) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px;">Nenhuma despesa adicionada</div>';
+    } else {
+      el.innerHTML = despesas.map(d => `
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;">
+          <input type="text" placeholder="Ex: Transporte" value="${d.nome}" oninput="updateDespesa(${d.id},'nome',this.value)"
+            style="font-size:12px;padding:7px 10px;">
+          <input type="number" placeholder="R$" value="${d.valor || ''}" oninput="updateDespesa(${d.id},'valor',this.value)"
+            style="font-size:12px;padding:7px 10px;width:90px;">
+          <button onclick="removeDespesa(${d.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px;">×</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  function updateDespesa(id, field, value) {
+    const d = despesas.find(x => x.id === id);
+    if (d) {
+      d[field] = field === 'valor' ? parseFloat(value) || 0 : value;
+      calcular();
+    }
+  }
+
+  function calcular() {
+    const diaria = parseFloat(document.getElementById('calc-diaria-val')?.value) || 0;
+    const qtd    = parseFloat(document.getElementById('calc-diaria-qtd')?.value) || 0;
+    const impPct = parseFloat(document.getElementById('calc-imposto')?.value) || 0;
+    const lucro  = parseFloat(document.getElementById('calc-lucro')?.value) || 0;
+
+    const edicaoVal     = parseFloat(document.getElementById('calc-edicao-val')?.value) || 0;
+    const edicaoQtd     = parseFloat(document.getElementById('calc-edicao-qtd')?.value) || 0;
+    const totalDiarias  = diaria * qtd;
+    const totalEdicao   = edicaoVal * edicaoQtd;
+    const totalDespesas = despesas.reduce((s, d) => s + (d.valor || 0), 0);
+    const totalFreelas   = freelas.reduce((s, f) => s + (f.valor || 0), 0);
+    const edicaoDespesa = edicaoTipo === 'terceirizada' ? totalEdicao : 0;
+    const subtotal      = totalDiarias + edicaoDespesa + totalDespesas + totalFreelas;
+
+    const freelasEl = document.getElementById('calc-total-freelas');
+    if (freelasEl) freelasEl.textContent = fmt(totalFreelas);
+
+    const edicaoEl = document.getElementById('calc-total-edicao');
+    if (edicaoEl) edicaoEl.textContent = fmt(totalEdicao);
+    const baseParaLucro = totalDiarias + edicaoDespesa + totalDespesas;
+    const impostoVal    = baseParaLucro * (impPct / 100);
+    const baseTotal     = baseParaLucro + impostoVal;
+    const lucroVal      = baseTotal * (lucro / 100);
+    const totalBruto    = baseTotal + lucroVal + totalFreelas;
+    const margemLucro   = lucro.toFixed(1);
+
+    // Update despesas total
+    const despEl = document.getElementById('calc-total-despesas');
+    if (despEl) despEl.textContent = fmt(totalDespesas);
+
+    // Update resultado
+    const res = document.getElementById('calc-resultado');
+    if (!res) return;
+
+    // Store last calc for saving - always update
+    window._lastCalc = { totalDiarias, totalEdicao, totalFreelas, totalDespesas, subtotal, impostoVal, lucro, lucroVal, totalBruto, margemLucro, impPct, diaria, qtd, edicaoVal, edicaoQtd };
+
+    if (subtotal === 0 && lucro === 0) {
+      res.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">Preencha os campos ao lado para calcular</div>';
+      return;
+    }
+
+    function row(label, val, color, bold, big) {
+      color = color || 'var(--text)';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:12px;color:var(--text2)">' + label + '</span>' +
+        '<span style="font-family:DM Mono,monospace;font-size:13px;color:' + color + ';font-weight:' + (bold ? '700' : '400') + '">' + val + '</span>' +
+        '</div>';
+    }
+
+    var html = row('Diárias (' + qtd + ' × ' + fmt(diaria) + ')', fmt(totalDiarias));
+    if (totalEdicao > 0) html += row('Edição (' + (edicaoTipo === 'interna' ? 'interna' : 'terceirizada') + ') ' + edicaoQtd + ' vídeo(s) × ' + fmt(edicaoVal), fmt(totalEdicao), edicaoTipo === 'interna' ? 'var(--green)' : 'var(--accent2)');
+    if (totalFreelas > 0) html += row('Equipe / Freelas', fmt(totalFreelas), 'var(--accent4)');
+    html += row('Total de Despesas', fmt(totalDespesas), 'var(--accent3)');
+    html += row('Subtotal', fmt(subtotal));
+    html += row('Imposto (' + impPct + '%)', '− ' + fmt(impostoVal), 'var(--accent2)');
+    html += row('Lucro desejado (' + lucro + '%)', '+ ' + fmt(lucroVal), 'var(--green)');
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 8px;">' +
+      '<span style="font-size:14px;font-weight:700;color:var(--text)">Valor Final ao Cliente</span>' +
+      '<span style="font-family:DM Mono,monospace;font-size:22px;color:var(--accent);font-weight:700">' + fmt(totalBruto) + '</span>' +
+      '</div>';
+    html += '<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;font-size:12px;color:var(--text2);">' +
+      '<span>Margem de lucro real</span>' +
+      '<span style="color:var(--green);font-weight:600">' + margemLucro + '%</span>' +
+      '</div>';
+    res.innerHTML = html;
+
+  }
+
+  function limparCalc() {
+    document.getElementById('calc-nome').value = '';
+    document.getElementById('calc-diaria-val').value = '';
+    document.getElementById('calc-diaria-qtd').value = '0';
+    document.getElementById('calc-imposto').value = '6';
+    document.getElementById('calc-lucro').value = '';
+    document.getElementById('calc-edicao-val').value = '';
+    document.getElementById('calc-edicao-qtd').value = '';
+    setEdicaoTipo('interna');
+    freelas = [];
+    renderFreelas();
+    despesas = [];
+    renderDespesas();
+    calcular();
+  }
+
+  function salvarOrcamento() {
+    const nome = document.getElementById('calc-nome').value.trim();
+    if (!nome) return alert('Dê um nome ao orçamento antes de salvar.');
+    if (!window._lastCalc || window._lastCalc.totalBruto === 0) return alert('Calcule o orçamento antes de salvar.');
+    orcamentos.unshift({
+      id: Date.now(),
+      nome,
+      ...window._lastCalc,
+      data: new Date().toLocaleDateString('pt-BR'),
+      despesasDetalhe: [...despesas],
+      freelasDetalhe: [...freelas]
+    });
+    localStorage.setItem('ff_orcamentos', JSON.stringify(orcamentos)); sbSave('orcamentos', orcamentos);
+    renderOrcamentos();
+    alert('✅ Orçamento salvo!');
+  }
+
+  function verDetalhes(id) {
+    const o = orcamentos.find(x => x.id === id);
+    if (!o) return;
+    const modal = document.getElementById('modal-detalhes-orc');
+    const body = document.getElementById('detalhes-orc-body');
+
+    function row(label, val, color) {
+      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:13px;color:var(--text2)">' + label + '</span>' +
+        '<span style="font-family:DM Mono,monospace;font-size:13px;color:' + (color||'var(--text)') + '">' + val + '</span>' +
+        '</div>';
+    }
+
+    let html = '<div style="font-family:Space Grotesk,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px;">Breakdown</div>';
+
+    if (o.totalDiarias > 0) html += row('Diárias (' + o.qtd + ' × ' + fmt(o.diaria) + ')', fmt(o.totalDiarias));
+    if (o.totalEdicao > 0) html += row('Edição (' + o.edicaoQtd + ' vídeos × ' + fmt(o.edicaoVal) + ')', fmt(o.totalEdicao), 'var(--accent2)');
+
+    if (o.freelasDetalhe && o.freelasDetalhe.length > 0) {
+      html += '<div style="font-size:11px;color:var(--text3);margin:10px 0 4px;">Equipe / Freelas</div>';
+      o.freelasDetalhe.forEach(function(f) {
+        html += row('  ' + (f.nome || 'Freela'), fmt(f.valor), 'var(--accent4)');
+      });
+      html += row('Total Equipe', fmt(o.totalFreelas), 'var(--accent4)');
+    }
+
+    if (o.despesasDetalhe && o.despesasDetalhe.length > 0) {
+      html += '<div style="font-size:11px;color:var(--text3);margin:10px 0 4px;">Despesas</div>';
+      o.despesasDetalhe.forEach(function(d) {
+        html += row('  ' + (d.nome || 'Despesa'), fmt(d.valor), 'var(--accent3)');
+      });
+      html += row('Total Despesas', fmt(o.totalDespesas), 'var(--accent3)');
+    }
+
+    html += '<div style="height:1px;background:var(--border);margin:12px 0;"></div>';
+    html += row('Subtotal', fmt(o.subtotal));
+    html += row('Imposto (' + o.impPct + '%)', '− ' + fmt(o.impostoVal), 'var(--accent2)');
+    html += row('Lucro (' + o.lucro + '%)', '+ ' + fmt(o.lucroVal), 'var(--green)');
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;">' +
+      '<span style="font-size:15px;font-weight:700;">Valor Final ao Cliente</span>' +
+      '<span style="font-family:DM Mono,monospace;font-size:20px;color:var(--accent);font-weight:700">' + fmt(o.totalBruto) + '</span>' +
+      '</div>';
+    html += '<div style="background:var(--surface2);border-radius:8px;padding:8px 14px;display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:4px;">' +
+      '<span>Margem de lucro real</span>' +
+      '<span style="color:var(--green);font-weight:600">' + o.margemLucro + '%</span>' +
+      '</div>';
+
+    body.innerHTML = html;
+    modal.classList.add('open');
+  }
+
+  function deleteOrcamento(id) {
+    if (!confirm('Remover orçamento?')) return;
+    orcamentos = orcamentos.filter(o => o.id !== id);
+    localStorage.setItem('ff_orcamentos', JSON.stringify(orcamentos));
+    sbDelete('orcamentos', id);
+    renderOrcamentos();
+    renderLeads();
+    renderCustos();
+    renderMetas();
+  }
+
+  function verDetalhes(id) {
+    const o = orcamentos.find(x => x.id === id);
+    if (!o) return;
+    document.getElementById('orcamento-detalhes-titulo').textContent = o.nome;
+
+    const row = (label, valor, color) =>
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">' +
+      '<span style="font-size:13px;color:var(--text2)">' + label + '</span>' +
+      '<span style="font-family:DM Mono,monospace;font-size:13px;color:' + (color || 'var(--text)') + '">' + valor + '</span>' +
+      '</div>';
+
+    let html = '';
+
+    // Diárias
+    if (o.diaria && o.qtd) {
+      html += row('Diárias (' + o.qtd + ' × ' + fmt(o.diaria) + ')', fmt(o.totalDiarias));
+    }
+
+    // Edição
+    if (o.edicaoVal && o.edicaoQtd) {
+      html += row('Edição (' + o.edicaoQtd + ' vídeo' + (o.edicaoQtd > 1 ? 's' : '') + ' × ' + fmt(o.edicaoVal) + ')', fmt(o.totalEdicao), 'var(--accent2)');
+    }
+
+    // Freelas
+    if (o.totalFreelas && o.totalFreelas > 0) {
+      html += row('Equipe / Freelas', fmt(o.totalFreelas), 'var(--accent4)');
+    }
+
+    // Despesas detalhadas
+    if (o.despesasDetalhe && o.despesasDetalhe.length > 0) {
+      o.despesasDetalhe.forEach(function(d) {
+        if (d.valor > 0) html += row('Despesa: ' + (d.nome || 'Item'), fmt(d.valor), 'var(--accent3)');
+      });
+    } else if (o.totalDespesas && o.totalDespesas > 0) {
+      html += row('Total Despesas', fmt(o.totalDespesas), 'var(--accent3)');
+    }
+
+    html += row('Subtotal', fmt(o.subtotal));
+    html += row('Imposto (' + o.impPct + '%)', '− ' + fmt(o.impostoVal), 'var(--red)');
+    html += row('Lucro (' + o.lucro + '%)', '+ ' + fmt(o.lucroVal), 'var(--green)');
+
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;">' +
+      '<span style="font-size:15px;font-weight:700;color:var(--text)">Valor Final ao Cliente</span>' +
+      '<span style="font-family:DM Mono,monospace;font-size:20px;color:var(--accent);font-weight:700">' + fmt(o.totalBruto) + '</span>' +
+      '</div>';
+
+    html += '<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:4px;">' +
+      '<span>Margem de lucro real</span>' +
+      '<span style="color:var(--green);font-weight:600">' + o.margemLucro + '%</span>' +
+      '</div>';
+
+    document.getElementById('orcamento-detalhes-body').innerHTML = html;
+    openModal('orcamento-detalhes');
+  }
+
+  function renderOrcamentos() {
+    const el = document.getElementById('table-orcamentos');
+    if (!el) return;
+    if (orcamentos.length === 0) {
+      el.innerHTML = '<tr><td colspan="5" class="empty">Nenhum orçamento salvo</td></tr>';
+    } else {
+      el.innerHTML = orcamentos.map(o => `
+        <tr>
+          <td><strong>${o.nome}</strong><br><small style="color:var(--text3)">${o.data}</small></td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(o.subtotal)}</span></td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green)">${fmt(o.lucro)}</span></td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);font-weight:700">${fmt(o.totalBruto)}</span></td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="verDetalhes(${o.id})">Detalhes</button>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red)" onclick="deleteOrcamento(${o.id})">Remover</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  renderDespesas();
+  renderFreelas();
+  renderOrcamentos();
+
+  // EXPORT
+  function exportarDados() {
+    const dados = {
+      versao: '1.0',
+      exportadoEm: new Date().toISOString(),
+      clientes,
+      propostas,
+      pontuais,
+      orcamentos,
+      leads,
+      custos
+    };
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gamut-films-${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // IMPORT
+  function importarDados(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const dados = JSON.parse(e.target.result);
+        if (!dados.clientes || !dados.propostas || !dados.pontuais) {
+          alert('Arquivo inválido. Verifique se é um export do Gamut Films.');
+          return;
+        }
+        if (!confirm(`Importar dados de ${new Date(dados.exportadoEm).toLocaleString('pt-BR')}?\n\nIsso vai substituir todos os dados atuais.`)) return;
+        clientes = dados.clientes;
+        propostas = dados.propostas;
+        pontuais = dados.pontuais;
+        orcamentos = dados.orcamentos || [];
+        leads = dados.leads || [];
+        custos = dados.custos || [];
+        localStorage.setItem('ff_clientes', JSON.stringify(clientes)); sbSave('clientes', clientes);
+        localStorage.setItem('ff_propostas', JSON.stringify(propostas)); sbSave('propostas', propostas);
+        localStorage.setItem('ff_pontuais', JSON.stringify(pontuais)); sbSave('pontuais', pontuais);
+        localStorage.setItem('ff_orcamentos', JSON.stringify(orcamentos)); sbSave('orcamentos', orcamentos);
+        localStorage.setItem('ff_leads', JSON.stringify(leads)); sbSave('leads', leads);
+        localStorage.setItem('ff_custos', JSON.stringify(custos)); sbSave('custos', custos);
+        render();
+        alert('✅ Dados importados com sucesso!');
+      } catch(err) {
+        alert('Erro ao ler o arquivo. Certifique-se que é um JSON válido.');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // TOGGLE ANUAL PANEL
+  function toggleAnual() {
+    const panel = document.getElementById('anual-panel');
+    const label = document.getElementById('toggle-anual-label');
+    const isHidden = panel.style.display === 'none';
+    panel.style.display = isHidden ? 'block' : 'none';
+    label.textContent = isHidden ? '▲ Fechar' : '▼ Ver';
+  }
+
+  // YEAR STATE
+  let selectedYear = new Date().getFullYear();
+
+  function renderYearBtns() {
+    const years = new Set();
+    years.add(new Date().getFullYear());
+    years.add(new Date().getFullYear() - 1);
+    pontuais.forEach(p => { if (p.entrega) years.add(new Date(p.entrega + 'T00:00').getFullYear()); });
+    clientes.forEach(c => { if (c.inicio) years.add(new Date(c.inicio + 'T00:00').getFullYear()); });
+    const sorted = [...years].sort((a,b) => b - a);
+    const el = document.getElementById('year-btns');
+    if (el) el.innerHTML = sorted.map(y => `
+      <button class="month-btn ${y === selectedYear ? 'active' : ''}" onclick="selectYear(${y})">${y}</button>
+    `).join('');
+  }
+
+  function selectYear(y) {
+    selectedYear = y;
+    render();
+  }
+
+  // DATE
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+
+  // Set today's date on date inputs
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('c-inicio').value = today;
+  document.getElementById('p-data').value = today;
+  document.getElementById('pt-entrega').value = today;
+  document.getElementById('l-data').value = today;
+
+  // FORMAT
+  function fmt(val) {
+    return 'R$ ' + Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // NAVIGATION
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    event.currentTarget.classList.add('active');
+    render();
+  }
+
+  // MODAL
+  function openModal(type) {
+    document.getElementById('modal-' + type).classList.add('open');
+  }
+
+  function closeModal(type) {
+    document.getElementById('modal-' + type).classList.remove('open');
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
+
+  // SAVE CLIENTE
+  function saveCliente() {
+    const nome = document.getElementById('c-nome').value.trim();
+    const valor = parseFloat(document.getElementById('c-valor').value);
+    if (!nome || !valor) return alert('Preencha nome e valor.');
+    clientes.push({
+      id: Date.now(),
+      nome,
+      empresa: document.getElementById('c-empresa').value.trim(),
+      contato: document.getElementById('c-contato').value.trim(),
+      contrato: document.getElementById('c-contrato').value,
+      diarias: document.getElementById('c-diarias').value,
+      valor,
+      inicio: document.getElementById('c-inicio').value,
+      status: document.getElementById('c-status').value,
+      obs: document.getElementById('c-obs').value.trim()
+    });
+    localStorage.setItem('ff_clientes', JSON.stringify(clientes)); sbSave('clientes', clientes);
+    closeModal('cliente');
+    clearForm(['c-nome','c-empresa','c-contato','c-valor','c-obs']);
+    document.getElementById('c-diarias').value = '';
+    render();
+  }
+
+  // SAVE PROPOSTA
+  function saveProposta() {
+    const cliente = document.getElementById('p-cliente').value.trim();
+    const servico = document.getElementById('p-servico').value.trim();
+    const valor = parseFloat(document.getElementById('p-valor').value);
+    if (!cliente || !servico || !valor) return alert('Preencha cliente, serviço e valor.');
+    propostas.push({
+      id: Date.now(),
+      cliente,
+      servico,
+      valor,
+      data: document.getElementById('p-data').value,
+      status: document.getElementById('p-status').value,
+      obs: document.getElementById('p-obs').value.trim()
+    });
+    localStorage.setItem('ff_propostas', JSON.stringify(propostas)); sbSave('propostas', propostas);
+    closeModal('proposta');
+    clearForm(['p-cliente','p-servico','p-valor','p-obs']);
+    render();
+  }
+
+  function clearForm(ids) { ids.forEach(id => document.getElementById(id).value = ''); }
+
+  // DELETE
+  function deleteCliente(id) {
+    if (!confirm('Remover cliente?')) return;
+    clientes = clientes.filter(c => c.id !== id);
+    localStorage.setItem('ff_clientes', JSON.stringify(clientes));
+    sbDelete('clientes', id);
+    render();
+  }
+
+  function deleteProposta(id) {
+    if (!confirm('Remover proposta?')) return;
+    propostas = propostas.filter(p => p.id !== id);
+    localStorage.setItem('ff_propostas', JSON.stringify(propostas));
+    sbDelete('propostas', id);
+    render();
+  }
+
+  function updatePropostaStatus(id, status) {
+    const p = propostas.find(x => x.id === id);
+    if (p) p.status = status;
+    localStorage.setItem('ff_propostas', JSON.stringify(propostas)); sbSave('propostas', propostas);
+    render();
+  }
+
+  // SAVE PONTUAL
+  function savePontual() {
+    const cliente = document.getElementById('pt-cliente').value.trim();
+    const valor = parseFloat(document.getElementById('pt-valor').value);
+    if (!cliente || !valor) return alert('Preencha cliente e valor.');
+    pontuais.push({
+      id: Date.now(),
+      cliente,
+      tipo: document.getElementById('pt-tipo').value,
+      valor,
+      entrega: document.getElementById('pt-entrega').value,
+      status: document.getElementById('pt-status').value,
+      obs: document.getElementById('pt-obs').value.trim()
+    });
+    localStorage.setItem('ff_pontuais', JSON.stringify(pontuais)); sbSave('pontuais', pontuais);
+    closeModal('pontual');
+    clearForm(['pt-cliente','pt-valor','pt-obs']);
+    render();
+  }
+
+  function deletePontual(id) {
+    if (!confirm('Remover projeto?')) return;
+    pontuais = pontuais.filter(p => p.id !== id);
+    localStorage.setItem('ff_pontuais', JSON.stringify(pontuais));
+    sbDelete('pontuais', id);
+    render();
+  }
+
+  function updatePontualStatus(id, status) {
+    const p = pontuais.find(x => x.id === id);
+    if (p) p.status = status;
+    localStorage.setItem('ff_pontuais', JSON.stringify(pontuais)); sbSave('pontuais', pontuais);
+    render();
+  }
+
+  function contratoMeses(contrato) {
+    if (contrato === '3 meses') return 3;
+    if (contrato === '6 meses') return 6;
+    return 12; // default 1 ano
+  }
+
+    // RENDER
+  function render() {
+    const ativos = clientes.filter(c => c.status === 'Ativo');
+    const recMensal = ativos.reduce((s, c) => s + c.valor, 0);
+    const ltv = ativos.reduce((s, c) => s + c.valor * contratoMeses(c.contrato), 0);
+    const aprovadas = propostas.filter(p => p.status === 'Aprovada');
+    const totalAprov = aprovadas.reduce((s, p) => s + p.valor, 0);
+
+    // KPIs
+    document.getElementById('kpi-clientes').textContent = ativos.length;
+
+    // Annual KPIs
+    renderYearBtns();
+
+    // Recorrente anual: for each active client, count months in selectedYear from their start date
+    let recAnual = 0;
+    ativos.forEach(c => {
+      // Mês de início no ano selecionado (0-indexed)
+      const start = c.inicio ? new Date(c.inicio + 'T00:00') : new Date(selectedYear + '-01-01');
+      const startYear = start.getFullYear();
+      const startMonth = start.getMonth(); // 0-indexed
+      const contratoMesesVal = contratoMeses(c.contrato);
+
+      // Primeiro mês do cliente no ano selecionado
+      let firstMonth; // 0-indexed
+      if (startYear > selectedYear) return; // contrato começa depois do ano, não conta
+      if (startYear === selectedYear) firstMonth = startMonth;
+      else firstMonth = 0; // começou antes, conta desde janeiro
+
+      // Último mês = primeiro mês + duração do contrato - meses já passados antes do ano
+      let monthsBeforeYear = startYear < selectedYear ? (selectedYear - startYear) * 12 - startMonth : 0;
+      let remainingMonths = contratoMesesVal - monthsBeforeYear;
+      if (remainingMonths <= 0) return; // contrato já acabou antes desse ano
+
+      // Limita até dezembro (mês 11)
+      let lastMonth = Math.min(firstMonth + remainingMonths - 1, 11);
+      let monthsInYear = lastMonth - firstMonth + 1;
+      if (monthsInYear <= 0) return;
+
+      recAnual += c.valor * monthsInYear;
+    });
+
+    // Pontuais anual: sum pontuais with entrega in selectedYear
+    let pontAnual = 0;
+    pontuais.forEach(p => {
+      if (p.entrega) {
+        const yr = new Date(p.entrega + 'T00:00').getFullYear();
+        if (yr === selectedYear) pontAnual += p.valor;
+      } else {
+        pontAnual += p.valor; // no date = count in current year
+      }
+    });
+
+    const totalAnual = recAnual + pontAnual;
+    document.getElementById('kpi-anual-rec').textContent = fmt(recAnual);
+    document.getElementById('kpi-anual-pont').textContent = fmt(pontAnual);
+    document.getElementById('kpi-anual-total').textContent = fmt(totalAnual);
+    document.getElementById('kpi-anual-rec-sub').textContent = `clientes ativos em ${selectedYear}`;
+    document.getElementById('kpi-anual-pont-sub').textContent = `avulsos em ${selectedYear}`;
+    document.getElementById('kpi-faturamento').textContent = fmt(recMensal);
+    document.getElementById('kpi-ltv').textContent = fmt(ltv);
+    document.getElementById('kpi-propostas').textContent = propostas.length;
+    document.getElementById('kpi-prop-sub').innerHTML =
+      `<span class="badge up">${aprovadas.length} aprovadas</span>`;
+
+    // Faturamento page KPIs
+    document.getElementById('fat-mensal').textContent = fmt(recMensal);
+    document.getElementById('fat-propostas').textContent = fmt(totalAprov);
+    document.getElementById('fat-anual').textContent = fmt(ltv);
+    document.getElementById('fat-anual').nextElementSibling && (document.getElementById('fat-anual').nextElementSibling.textContent = 'baseado na duração dos contratos');
+
+    // Table clientes dashboard
+    const tcd = document.getElementById('table-clientes-dash');
+    if (clientes.length === 0) {
+      tcd.innerHTML = '<tr><td colspan="3" class="empty">Nenhum cliente cadastrado</td></tr>';
+    } else {
+      tcd.innerHTML = clientes.map(c => `
+        <tr>
+          <td><strong>${c.nome}</strong>${c.empresa ? `<br><small style="color:var(--text3)">${c.empresa}</small>` : ''}</td>
+          <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(c.valor)}</span></td>
+          <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Table clientes full
+    const tcf = document.getElementById('table-clientes-full');
+    if (clientes.length === 0) {
+      tcf.innerHTML = '<tr><td colspan="10" class="empty">Nenhum cliente cadastrado</td></tr>';
+    } else {
+      tcf.innerHTML = clientes.map(c => `
+        <tr>
+          <td><strong>${c.nome}</strong></td>
+          <td>${c.empresa || '—'}</td>
+          <td style="color:var(--text2)">${c.contato || '—'}</td>
+          <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(c.valor)}</span></td>
+          <td style="color:var(--text2)">${c.inicio ? new Date(c.inicio + 'T00:00').toLocaleDateString('pt-BR') : '—'}</td>
+          <td style="color:var(--text2)">${c.contrato || '—'}</td>
+          <td style="color:var(--text2);text-align:center">${c.diarias ? c.diarias + (c.diarias == 1 ? ' diária' : ' diárias') : '—'}</td>
+          <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);font-size:12px">${c.obs ? c.obs.replace(/\n/g,' ').substring(0,40) + (c.obs.length > 40 ? '...' : '') : '—'}</td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="editCliente(${c.id})">Editar</button>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red)" onclick="deleteCliente(${c.id})">Remover</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Table propostas dashboard (last 5)
+    const tpd = document.getElementById('table-propostas-dash');
+    const lastPropostas = [...propostas].reverse().slice(0, 2);
+    if (propostas.length === 0) {
+      tpd.innerHTML = '<tr><td colspan="5" class="empty">Nenhuma proposta cadastrada</td></tr>';
+    } else {
+      tpd.innerHTML = lastPropostas.map(p => `
+        <tr>
+          <td><strong>${p.cliente}</strong></td>
+          <td style="color:var(--text2)">${p.servico}</td>
+          <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(p.valor)}</span></td>
+          <td style="color:var(--text2)">${p.data ? new Date(p.data + 'T00:00').toLocaleDateString('pt-BR') : '—'}</td>
+          <td><span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Table propostas full
+    const tpf = document.getElementById('table-propostas-full');
+    if (propostas.length === 0) {
+      tpf.innerHTML = '<tr><td colspan="7" class="empty">Nenhuma proposta cadastrada</td></tr>';
+    } else {
+      tpf.innerHTML = [...propostas].reverse().map(p => `
+        <tr>
+          <td><strong>${p.cliente}</strong></td>
+          <td style="color:var(--text2)">${p.servico}</td>
+          <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(p.valor)}</span></td>
+          <td style="color:var(--text2)">${p.data ? new Date(p.data + 'T00:00').toLocaleDateString('pt-BR') : '—'}</td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);font-size:12px">${p.obs ? p.obs.replace(/\n/g,' ').substring(0,40) + (p.obs.length > 40 ? '...' : '') : '—'}</td>
+          <td>
+            <select onchange="updatePropostaStatus(${p.id}, this.value)" style="font-size:11px;padding:4px 8px;width:auto">
+              <option ${p.status==='Pendente'?'selected':''}>Pendente</option>
+              <option ${p.status==='Aprovada'?'selected':''}>Aprovada</option>
+              <option ${p.status==='Recusada'?'selected':''}>Recusada</option>
+            </select>
+          </td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="editProposta(${p.id})">Editar</button>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red)" onclick="deleteProposta(${p.id})">Remover</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // LTV Bars (only faturamento page)
+    const ltvFat = document.getElementById('ltv-bars-fat');
+    if (ltvFat) {
+      if (ativos.length === 0) {
+        ltvFat.innerHTML = '<div class="empty">Adicione clientes para ver a receita</div>';
+      } else {
+        const maxVal = Math.max(...ativos.map(function(c) { return c.valor * contratoMeses(c.contrato); }));
+        var barsHtml = ativos.map(function(c) {
+          const meses = contratoMeses(c.contrato);
+          const anual = c.valor * meses;
+          const pct = maxVal > 0 ? (anual / maxVal * 100) : 0;
+          return '<div class="ltv-row">' +
+            '<div class="ltv-name">' + c.nome + '</div>' +
+            '<div class="ltv-bar-bg"><div class="ltv-bar-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="ltv-val">' + fmt(anual) + ' <span style="font-size:10px;color:var(--text3)">' + meses + 'm</span></div>' +
+            '</div>';
+        }).join('');
+        ltvFat.innerHTML = barsHtml;
+      }
+    }
+
+    // Render pontuais total faturamento
+    const totalPontuais = pontuais.reduce((s, p) => s + p.valor, 0);
+    const fatPontuaisEl = document.getElementById('fat-pontuais');
+    if (fatPontuaisEl) fatPontuaisEl.textContent = fmt(totalPontuais);
+
+    // Dashboard pontuais table (last 5)
+    const tptd = document.getElementById('table-pontuais-dash');
+    if (tptd) {
+      const last = [...pontuais].reverse().slice(0, 5);
+      tptd.innerHTML = pontuais.length === 0
+        ? '<tr><td colspan="5" class="empty">Nenhum projeto pontual cadastrado</td></tr>'
+        : last.map(p => `
+          <tr>
+            <td><strong>${p.cliente}</strong></td>
+            <td style="color:var(--text2)">${p.tipo}</td>
+            <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(p.valor)}</span></td>
+            <td style="color:var(--text2)">${p.entrega ? new Date(p.entrega + 'T00:00').toLocaleDateString('pt-BR') : '—'}</td>
+            <td><span class="status-badge status-${p.status.toLowerCase().replace(' ','-')}">${p.status}</span></td>
+          </tr>`).join('');
+    }
+
+    // Full pontuais table
+    const tptf = document.getElementById('table-pontuais-full');
+    if (tptf) {
+      tptf.innerHTML = pontuais.length === 0
+        ? '<tr><td colspan="8" class="empty">Nenhum projeto pontual cadastrado</td></tr>'
+        : [...pontuais].reverse().map(p => `
+          <tr>
+            <td><strong>${p.cliente}</strong></td>
+            <td style="color:var(--text2)">${p.tipo}</td>
+            <td><span style="font-family:'DM Mono',monospace;color:var(--accent)">${fmt(p.valor)}</span></td>
+            <td style="color:var(--text2)">${p.entrega ? new Date(p.entrega + 'T00:00').toLocaleDateString('pt-BR') : '—'}</td>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);font-size:12px" title="${p.obs ? p.obs.replace(/\n/g,' ') : ''}">${p.obs ? p.obs.replace(/\n/g,' ').substring(0,40) + (p.obs.length > 40 ? '...' : '') : '—'}</td>
+            <td>
+              <select onchange="updatePontualStatus(${p.id}, this.value)" style="font-size:11px;padding:4px 8px;width:auto">
+                <option ${p.status==='Em andamento'?'selected':''}>Em andamento</option>
+                <option ${p.status==='Concluído'?'selected':''}>Concluído</option>
+                <option ${p.status==='Cancelado'?'selected':''}>Cancelado</option>
+              </select>
+            </td>
+            <td><span class="status-badge" style="background:${p.pagamento==='Pago' ? 'rgba(74,222,128,0.1)' : p.pagamento==='Parcial' ? 'rgba(251,191,36,0.1)' : 'rgba(248,113,113,0.1)'};color:${p.pagamento==='Pago' ? 'var(--green)' : p.pagamento==='Parcial' ? 'var(--yellow)' : 'var(--red)'}">${p.pagamento || 'Não pago'}</span></td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="editPontual(${p.id})">Editar</button>
+              <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red)" onclick="deletePontual(${p.id})">Remover</button>
+            </td>
+          </tr>`).join('');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() { initDB(); });
+  if (document.readyState !== 'loading') { initDB(); }
+</script>
+<!-- MODAL NOVA META -->
+<div class="modal-overlay" id="modal-nova-meta">
+  <div class="modal">
+    <div class="modal-title">Nova Meta</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nome da Meta *</label>
+        <input type="text" id="m-nome" placeholder="Ex: Faturar R$ 100k em 2025">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="m-tipo" onchange="updateMetaTipo()">
+            <option value="faturamento">Faturamento Anual (R$)</option>
+            <option value="clientes">Clientes Recorrentes (qtd)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="m-valor-label">Valor da Meta (R$)</label>
+          <input type="number" id="m-valor" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Prazo</label>
+        <input type="date" id="m-prazo">
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <input type="text" id="m-obs" placeholder="Detalhes da meta...">
+      </div>
+    </div>
+    <input type="hidden" id="m-id">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('nova-meta')">Cancelar</button>
+      <button class="btn btn-accent" onclick="salvarMeta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SETTINGS -->
+<div class="modal-overlay" id="modal-settings">
+  <div class="modal" style="width:500px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <div class="modal-title" style="margin-bottom:0;">⚙️ Personalizar Dashboard</div>
+      <button onclick="closeModal('settings')" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">×</button>
+    </div>
+    <div class="form-grid">
+
+      <!-- NOME -->
+      <div class="form-group">
+        <label>Nome do Dashboard</label>
+        <input type="text" id="settings-nome" placeholder="Ex: Gamut Films" maxlength="30">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Aparece no topo da sidebar</div>
+      </div>
+
+      <!-- TEMAS -->
+      <div class="form-group">
+        <label>Tema</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+
+          <div id="tema-escuro" class="tema-btn" onclick="aplicarTema('escuro')"
+            style="border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid var(--accent);opacity:1;transition:all 0.2s;">
+            <div style="background:#0a0a0f;padding:12px 14px;">
+              <div style="font-size:11px;font-weight:700;color:#f5a623;margin-bottom:6px;">Escuro Clássico</div>
+              <div style="display:flex;gap:4px;">
+                <div style="width:16px;height:16px;border-radius:4px;background:#12121a;border:1px solid #2a2a40;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#f5a623;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#4ade80;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tema-azul" class="tema-btn" onclick="aplicarTema('azul')"
+            style="border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:0.7;transition:all 0.2s;">
+            <div style="background:#050d1a;padding:12px 14px;">
+              <div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px;">Escuro Azulado</div>
+              <div style="display:flex;gap:4px;">
+                <div style="width:16px;height:16px;border-radius:4px;background:#0a1628;border:1px solid #1e3554;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#38bdf8;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#34d399;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tema-claro" class="tema-btn" onclick="aplicarTema('claro')"
+            style="border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:0.7;transition:all 0.2s;">
+            <div style="background:#f8f9fc;padding:12px 14px;">
+              <div style="font-size:11px;font-weight:700;color:#e08020;margin-bottom:6px;">Claro Minimalista</div>
+              <div style="display:flex;gap:4px;">
+                <div style="width:16px;height:16px;border-radius:4px;background:#ffffff;border:1px solid #d8ddf0;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#e08020;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#16a34a;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tema-bege" class="tema-btn" onclick="aplicarTema('bege')"
+            style="border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:0.7;transition:all 0.2s;">
+            <div style="background:#f5f0e8;padding:12px 14px;">
+              <div style="font-size:11px;font-weight:700;color:#c87832;margin-bottom:6px;">Claro Quente</div>
+              <div style="display:flex;gap:4px;">
+                <div style="width:16px;height:16px;border-radius:4px;background:#fdfaf4;border:1px solid #d4cabc;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#c87832;"></div>
+                <div style="width:16px;height:16px;border-radius:4px;background:#2d7a3a;"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <div class="form-actions" style="margin-top:22px;">
+      <button class="btn btn-ghost" onclick="closeModal('settings')">Fechar</button>
+      <button class="btn btn-accent" onclick="salvarSettings()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHES ORÇAMENTO -->
+<div class="modal-overlay" id="modal-detalhes-orc">
+  <div class="modal" style="width:520px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="modal-title" style="margin-bottom:0;">Detalhes do Orçamento</div>
+      <button onclick="closeModal('detalhes-orc')" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">×</button>
+    </div>
+    <div id="detalhes-orc-body"></div>
+  </div>
+</div>
+
+</body>
+</html>
