@@ -1,0 +1,14 @@
+name: Keep Supabase Alive
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Financas Supabase
+        run: |
+          curl -s "https://wfnknrzimosfwahhvsbe.supabase.co/rest/v1/finapp_state?id=eq.main&select=id" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmtucnppbW9zZndhaGh2c2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Nzc2MDEsImV4cCI6MjA5MDA1MzYwMX0.aQ8f5M29w0o_M9vV11CQU6UrP-vkezGIdsQRoeRrCQI"
