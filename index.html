@@ -500,6 +500,9 @@
     <div class="nav-item" onclick="showPage('metas')">
       <span class="icon">🎯</span> Metas
     </div>
+    <div class="nav-item" onclick="showPage('contas')">
+      <span class="icon">🧾</span> Contas
+    </div>
   </nav>
   <div class="sidebar-bottom">
     <div style="margin-bottom:10px; color:var(--text3); font-size:11px;">Videomaker Dashboard v1.0</div>
@@ -1072,6 +1075,66 @@
       <button class="btn btn-accent" onclick="document.getElementById('m-id').value=''; clearForm(['m-nome','m-valor','m-obs','m-prazo']); document.getElementById('m-tipo').value='faturamento'; updateMetaTipo(); openModal('nova-meta')">+ Nova Meta</button>
     </div>
     <div id="lista-metas-page" style="display:grid;gap:16px;"></div>
+  </div>
+
+  <!-- CONTAS PAGE -->
+  <div id="page-contas" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Contas</div>
+        <div class="page-sub">Controle do que você paga todo mês</div>
+      </div>
+      <button class="btn btn-accent" onclick="abrirNovaContaModal()">+ Nova Conta</button>
+    </div>
+
+    <!-- ANO SELECTOR -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <button onclick="mudarAnoContas(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;">‹</button>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;" id="contas-ano-label">2025</div>
+      <button onclick="mudarAnoContas(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;">›</button>
+    </div>
+
+    <!-- MESES TABS -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;" id="contas-meses-tabs"></div>
+
+    <!-- RESUMO DO MÊS -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+      <div class="card c2">
+        <div class="card-label">Total do Mês</div>
+        <div class="card-value" id="contas-total-mes">R$ 0</div>
+        <div class="card-sub">todas as contas</div>
+      </div>
+      <div class="card c4">
+        <div class="card-label">Não Pago</div>
+        <div class="card-value" id="contas-nao-pago">R$ 0</div>
+        <div class="card-sub">pendente</div>
+      </div>
+      <div class="card c1">
+        <div class="card-label">Já Pago</div>
+        <div class="card-value" id="contas-pago">R$ 0</div>
+        <div class="card-sub">quitado</div>
+      </div>
+    </div>
+
+    <!-- LISTA DE CONTAS -->
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Conta</th>
+              <th>Valor</th>
+              <th>Recorrente</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="table-contas-mes">
+            <tr><td colspan="5" class="empty">Nenhuma conta neste mês</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- FATURAMENTO PAGE -->
@@ -1693,7 +1756,7 @@
     var loading = document.getElementById('db-loading');
     if (loading) loading.style.display = 'flex';
     var loaded = 0;
-    var total = 8;
+    var total = 9;
     var results = {};
 
     function checkDone() {
@@ -1707,11 +1770,12 @@
       if (results.o && results.o.length) orcamentos = results.o;
       if (results.ta && results.ta.length) tarefas = results.ta;
       if (results.me && results.me.length) metas = results.me;
+      if (results.cm && results.cm.length) contas = results.cm;
       if (loading) loading.style.display = 'none';
       // Load nome and cor from supabase
     sbLoadCfg('nome', function(v) { if(v) { localStorage.setItem('ff_nome',v); aplicarNome(v); } });
     sbLoadCfg('tema', function(v) { if(v) { localStorage.setItem('ff_tema',v); aplicarTema(v); } });
-    renderDespesas(); renderFreelas(); renderOrcamentos(); renderLeads(); renderCustos(); renderTarefas(); renderMetas(); render();
+    renderDespesas(); renderFreelas(); renderOrcamentos(); renderLeads(); renderCustos(); renderTarefas(); renderMetas(); renderContas(); render();
     }
 
     sbGet('clientes', function(d) { results.c = d; checkDone(); });
@@ -1722,6 +1786,7 @@
     sbGet('orcamentos', function(d) { results.o = d; checkDone(); });
     sbGet('tarefas', function(d) { results.ta = d; checkDone(); });
     sbGet('metas', function(d) { results.me = d; checkDone(); });
+    sbGet('contas_mensal', function(d) { results.cm = d; checkDone(); });
   }
 
   // STATE
@@ -2217,6 +2282,147 @@
     var btn = document.getElementById('tema-' + temaAtual);
     if (btn) { btn.style.border = '2px solid var(--accent)'; btn.style.opacity = '1'; }
     openModal('settings');
+  }
+
+  // CONTAS
+  let contas = JSON.parse(localStorage.getItem('ff_contas') || '[]');
+  let contasAnoAtual = new Date().getFullYear();
+  let contasMesAtual = new Date().getMonth(); // 0-indexed
+
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  function mudarAnoContas(delta) {
+    contasAnoAtual += delta;
+    renderContas();
+  }
+
+  function abrirNovaContaModal() {
+    document.getElementById('ct-id').value = '';
+    document.getElementById('modal-conta-titulo').textContent = 'Nova Conta';
+    clearForm(['ct-nome','ct-valor']);
+    document.getElementById('ct-status').value = 'Não pago';
+    document.getElementById('ct-recorrente').checked = false;
+    document.getElementById('ct-mes').value = contasMesAtual;
+    document.getElementById('ct-ano').value = contasAnoAtual;
+    openModal('nova-conta');
+  }
+
+  function editarConta(id) {
+    var c = contas.find(function(x) { return x.id === id; });
+    if (!c) return;
+    document.getElementById('ct-id').value = c.id;
+    document.getElementById('modal-conta-titulo').textContent = 'Editar Conta';
+    document.getElementById('ct-nome').value = c.nome;
+    document.getElementById('ct-valor').value = c.valor;
+    document.getElementById('ct-status').value = c.status;
+    document.getElementById('ct-recorrente').checked = false;
+    document.getElementById('ct-mes').value = c.mes;
+    document.getElementById('ct-ano').value = c.ano;
+    openModal('nova-conta');
+  }
+
+  function salvarConta() {
+    var nome = document.getElementById('ct-nome').value.trim();
+    var valor = parseFloat(document.getElementById('ct-valor').value);
+    if (!nome || !valor) return alert('Preencha nome e valor.');
+    var idRaw = document.getElementById('ct-id').value;
+    var recorrente = document.getElementById('ct-recorrente').checked;
+    var mes = parseInt(document.getElementById('ct-mes').value);
+    var ano = parseInt(document.getElementById('ct-ano').value);
+    var status = document.getElementById('ct-status').value;
+
+    if (idRaw) {
+      // Edit existing
+      contas = contas.map(function(c) {
+        if (c.id === parseInt(idRaw)) {
+          return { id: c.id, nome: nome, valor: valor, status: status, mes: c.mes, ano: c.ano, recorrente: c.recorrente };
+        }
+        return c;
+      });
+    } else if (recorrente) {
+      // Add to all months
+      for (var m = 0; m < 12; m++) {
+        contas.push({ id: Date.now() + m, nome: nome, valor: valor, status: 'Não pago', mes: m, ano: ano, recorrente: true });
+      }
+    } else {
+      contas.push({ id: Date.now(), nome: nome, valor: valor, status: status, mes: mes, ano: ano, recorrente: false });
+    }
+
+    localStorage.setItem('ff_contas_mensal', JSON.stringify(contas));
+    sbSave('contas_mensal', contas);
+    closeModal('nova-conta');
+    renderContas();
+  }
+
+  function toggleContaStatus(id) {
+    var c = contas.find(function(x) { return x.id === id; });
+    if (!c) return;
+    c.status = c.status === 'Pago' ? 'Não pago' : 'Pago';
+    localStorage.setItem('ff_contas_mensal', JSON.stringify(contas));
+    sbSave('contas_mensal', contas);
+    renderContas();
+  }
+
+  function deleteContaMensal(id) {
+    if (!confirm('Remover conta?')) return;
+    contas = contas.filter(function(c) { return c.id !== id; });
+    localStorage.setItem('ff_contas_mensal', JSON.stringify(contas));
+    sbDelete('contas_mensal', id);
+    renderContas();
+  }
+
+  function renderContas() {
+    // Update ano label
+    var anoLabel = document.getElementById('contas-ano-label');
+    if (anoLabel) anoLabel.textContent = contasAnoAtual;
+
+    // Render month tabs
+    var tabsEl = document.getElementById('contas-meses-tabs');
+    if (tabsEl) {
+      tabsEl.innerHTML = MESES.map(function(m, i) {
+        var ativo = i === contasMesAtual ? 'active' : '';
+        return '<button class="month-btn ' + ativo + '" onclick="contasMesAtual=' + i + ';renderContas();">' + m.substring(0,3) + '</button>';
+      }).join('');
+    }
+
+    // Get contas for current month/year
+    var contasMes = contas.filter(function(c) { return c.mes === contasMesAtual && c.ano === contasAnoAtual; });
+    var totalMes = contasMes.reduce(function(s, c) { return s + c.valor; }, 0);
+    var totalPago = contasMes.filter(function(c) { return c.status === 'Pago'; }).reduce(function(s, c) { return s + c.valor; }, 0);
+    var totalNaoPago = contasMes.filter(function(c) { return c.status !== 'Pago'; }).reduce(function(s, c) { return s + c.valor; }, 0);
+
+    // Update KPIs
+    var elTotal = document.getElementById('contas-total-mes');
+    var elPago = document.getElementById('contas-pago');
+    var elNao = document.getElementById('contas-nao-pago');
+    if (elTotal) elTotal.textContent = fmt(totalMes);
+    if (elPago) elPago.textContent = fmt(totalPago);
+    if (elNao) elNao.textContent = fmt(totalNaoPago);
+
+    // Render table
+    var tbody = document.getElementById('table-contas-mes');
+    if (!tbody) return;
+    if (contasMes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhuma conta em ' + MESES[contasMesAtual] + ' ' + contasAnoAtual + '</td></tr>';
+      return;
+    }
+    tbody.innerHTML = contasMes.map(function(c) {
+      var isPago = c.status === 'Pago';
+      return '<tr>' +
+        '<td><strong>' + c.nome + '</strong></td>' +
+        '<td><span style="font-family:DM Mono,monospace;color:var(--accent)">' + fmt(c.valor) + '</span></td>' +
+        '<td style="color:var(--text2);font-size:12px;">' + (c.recorrente ? '🔄 Sim' : '—') + '</td>' +
+        '<td>' +
+          '<span onclick="toggleContaStatus(' + c.id + ')" class="status-badge" style="cursor:pointer;background:' + (isPago ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)') + ';color:' + (isPago ? 'var(--green)' : 'var(--red)') + ';">' +
+            (isPago ? '✓ Pago' : '✗ Não pago') +
+          '</span>' +
+        '</td>' +
+        '<td style="display:flex;gap:6px;">' +
+          '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="editarConta(' + c.id + ')">Editar</button>' +
+          '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;color:var(--red)" onclick="deleteContaMensal(' + c.id + ')">Remover</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
   }
 
   // METAS
@@ -3207,6 +3413,45 @@
   document.addEventListener('DOMContentLoaded', function() { initDB(); });
   if (document.readyState !== 'loading') { initDB(); }
 </script>
+<!-- MODAL NOVA CONTA -->
+<div class="modal-overlay" id="modal-nova-conta">
+  <div class="modal">
+    <div class="modal-title" id="modal-conta-titulo">Nova Conta</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nome da Conta *</label>
+        <input type="text" id="ct-nome" placeholder="Ex: Aluguel, Luz, Imposto...">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Valor (R$) *</label>
+          <input type="number" id="ct-valor" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="ct-status">
+            <option value="Não pago">Não pago</option>
+            <option value="Pago">Pago</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="ct-recorrente" style="width:16px;height:16px;cursor:pointer;">
+          <span>Pagamento recorrente (adiciona em todos os meses do ano)</span>
+        </label>
+      </div>
+    </div>
+    <input type="hidden" id="ct-id">
+    <input type="hidden" id="ct-mes">
+    <input type="hidden" id="ct-ano">
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('nova-conta')">Cancelar</button>
+      <button class="btn btn-accent" onclick="salvarConta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL NOVA META -->
 <div class="modal-overlay" id="modal-nova-meta">
   <div class="modal">
