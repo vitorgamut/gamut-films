@@ -2332,19 +2332,31 @@
     var status = document.getElementById('ct-status').value;
 
     if (idRaw) {
-      // Edit existing
-      contas = contas.map(function(c) {
-        if (c.id === parseInt(idRaw)) {
-          return { id: c.id, nome: nome, valor: valor, status: status, mes: c.mes, ano: c.ano, recorrente: c.recorrente };
+      var idNum = parseInt(idRaw);
+      if (recorrente) {
+        // Editar e tornar recorrente — remove a conta atual e adiciona em todos os meses
+        contas = contas.filter(function(c) { return c.id !== idNum; });
+        var base = Date.now();
+        for (var m = 0; m < 12; m++) {
+          contas.push({ id: base + m, nome: nome, valor: valor, status: 'Não pago', mes: m, ano: ano, recorrente: true });
         }
-        return c;
-      });
+      } else {
+        // Editar conta existente sem mudar recorrência
+        contas = contas.map(function(c) {
+          if (c.id === idNum) {
+            return { id: c.id, nome: nome, valor: valor, status: status, mes: c.mes, ano: c.ano, recorrente: c.recorrente };
+          }
+          return c;
+        });
+      }
     } else if (recorrente) {
-      // Add to all months
-      for (var m = 0; m < 12; m++) {
-        contas.push({ id: Date.now() + m, nome: nome, valor: valor, status: 'Não pago', mes: m, ano: ano, recorrente: true });
+      // Nova conta recorrente — adiciona em todos os meses
+      var base2 = Date.now();
+      for (var m2 = 0; m2 < 12; m2++) {
+        contas.push({ id: base2 + m2, nome: nome, valor: valor, status: 'Não pago', mes: m2, ano: ano, recorrente: true });
       }
     } else {
+      // Nova conta simples
       contas.push({ id: Date.now(), nome: nome, valor: valor, status: status, mes: mes, ano: ano, recorrente: false });
     }
 
