@@ -2730,18 +2730,19 @@
     const totalDespesas = despesas.reduce((s, d) => s + (d.valor || 0), 0);
     const totalFreelas   = freelas.reduce((s, f) => s + (f.valor || 0), 0);
     const edicaoDespesa = edicaoTipo === 'terceirizada' ? totalEdicao : 0;
+    const edicaoInterna = edicaoTipo === 'interna' ? totalEdicao : 0;
     const subtotal      = totalDiarias + edicaoDespesa + totalDespesas + totalFreelas;
+    const baseParaLucro = totalDiarias + edicaoDespesa + totalDespesas;
 
     const freelasEl = document.getElementById('calc-total-freelas');
     if (freelasEl) freelasEl.textContent = fmt(totalFreelas);
 
     const edicaoEl = document.getElementById('calc-total-edicao');
     if (edicaoEl) edicaoEl.textContent = fmt(totalEdicao);
-    const baseParaLucro = totalDiarias + edicaoDespesa + totalDespesas;
     const impostoVal    = baseParaLucro * (impPct / 100);
     const baseTotal     = baseParaLucro + impostoVal;
     const lucroVal      = baseTotal * (lucro / 100);
-    const totalBruto    = baseTotal + lucroVal + totalFreelas;
+    const totalBruto    = baseTotal + lucroVal + totalFreelas + edicaoInterna;
     const margemLucro   = lucro.toFixed(1);
 
     // Update despesas total
@@ -2769,7 +2770,7 @@
     }
 
     var html = row('Diárias (' + qtd + ' × ' + fmt(diaria) + ')', fmt(totalDiarias));
-    if (totalEdicao > 0) html += row('Edição (' + (edicaoTipo === 'interna' ? 'interna' : 'terceirizada') + ') ' + edicaoQtd + ' vídeo(s) × ' + fmt(edicaoVal), fmt(totalEdicao), edicaoTipo === 'interna' ? 'var(--green)' : 'var(--accent2)');
+    if (totalEdicao > 0) html += row('Edição (' + (edicaoTipo === 'interna' ? 'interna — receita da empresa' : 'terceirizada — despesa') + ') ' + edicaoQtd + 'x', fmt(totalEdicao), edicaoTipo === 'interna' ? 'var(--green)' : 'var(--accent2)');
     if (totalFreelas > 0) html += row('Equipe / Freelas', fmt(totalFreelas), 'var(--accent4)');
     html += row('Total de Despesas', fmt(totalDespesas), 'var(--accent3)');
     html += row('Subtotal', fmt(subtotal));
@@ -3062,7 +3063,8 @@
 
   // FORMAT
   function fmt(val) {
-    return 'R$ ' + Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    var n = Number(val);
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   // NAVIGATION
